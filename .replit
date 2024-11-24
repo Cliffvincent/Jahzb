@@ -1,9 +1,9 @@
 entrypoint="index.html"
 hidden=[".config"]
-modules = ["web:v2-20230623-0b7a606"]
+modules = ["web"]
 
 [nix]
-channel = "stable-23_11"
+channel = "stable-24_05"
 
 [deployment]
 publicDir = "/"
