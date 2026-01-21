@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -31,4 +31,118 @@
         <iframe class="webview" src="https://i.ibb.co/d011MxC8/wildan.png"></iframe>
     </div>
 </body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Auto-Pagebot</title>
+  <meta name="description" content="Auto PageBot is a Messenger automation tool for Facebook pages, making it easy to manage and automate your Messenger experience.">
+  <link rel="icon" href="https://github.com/images/modules/copilot-immersive-v1/hero.png"/>
+  <meta property="og:image" content="https://github.com/images/modules/copilot-immersive-v1/hero.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.css">
+  <style>body{font-family:'Outfit',sans-serif}.fade-in{animation:fadeIn 1s cubic-bezier(.4,0,.2,1) both}@keyframes fadeIn{0%{opacity:0;transform:translateY(48px)}100%{opacity:1;transform:none}}.btn-animated{transition:transform .13s cubic-bezier(.4,0,.2,1),background .13s,box-shadow .13s}.btn-animated:active{transform:scale(.97)}.btn-animated:hover{box-shadow:0 2px 16px 0 #2563eb33;background:#2563eb}.spinner{border:4px solid #64748b;border-top:4px solid #60a5fa;border-radius:50%;width:28px;height:28px;animation:spin 1s linear infinite;margin:auto}@keyframes spin{100%{transform:rotate(360deg)}}.swal2-popup{font-family:'Outfit',sans-serif!important}::selection{background:#64748b;color:#f1f5f9}html{scroll-behavior:smooth}::-webkit-scrollbar{width:8px;background:#23272e}::-webkit-scrollbar-thumb{background:#334155;border-radius:6px}.animated-gradient-text{background:linear-gradient(90deg,#38bdf8,#6366f1,#0ea5e9,#f472b6,#38bdf8);background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;color:transparent;animation:animatedBgGradient 2.6s ease-in-out infinite,slidefade 1s cubic-bezier(.4,0,.2,1) both}@keyframes animatedBgGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}@keyframes slidefade{0%{opacity:0;transform:translateY(20px) scale(.96);filter:blur(2px)}100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}</style>
+</head>
+<body class="bg-gray-950 text-white">
+  <main class="flex flex-col min-h-screen pt-20 transition-all duration-300">
+    <section class="fade-in min-h-[70vh] flex items-center justify-center px-2 sm:px-6 py-8">
+      <div class="w-full max-w-3xl bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800/80 shadow-2xl rounded-3xl p-4 sm:p-10 flex flex-col items-center justify-center min-h-[40vh] border border-blue-900">
+        <div class="w-full flex flex-col items-center">
+          <div class="flex flex-col items-center mb-6">
+            <img src="https://avatars.githubusercontent.com/u/143686507?v=4" alt="Page" class="w-14 h-14 mb-3 rounded-full shadow" />
+            <div class="text-2xl font-bold mb-2 animated-gradient-text">Auto PageBOT</div>
+            <div class="text-sm text-slate-500 mb-1 text-center">Login using your Admin ID and Page Token to manage your profile.</div>
+          </div>
+          <form id="login-form" class="w-full max-w-md flex flex-col gap-3">
+            <label class="flex flex-col gap-1">
+              <span class="text-blue-100 font-semibold text-sm">Admin ID:</span>
+              <input id="pageID" type="text" required autocomplete="off" class="px-3 py-2 bg-slate-800/60 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-200 font-mono" placeholder="e.g. 1234567890">
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-blue-100 font-semibold text-sm">Page Token:</span>
+              <textarea id="pageToken" required rows="3" class="px-3 py-2 bg-slate-800/60 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-200 font-mono resize-none" placeholder="Paste your PageToken here..."></textarea>
+            </label>
+            <button id="loginBtn" type="submit" class="mt-2 py-2 px-5 bg-blue-700 rounded-md text-white font-bold btn-animated flex items-center justify-center gap-2">
+              <i class="fa-solid fa-right-to-bracket"></i>
+              <span>Login</span>
+            </button>
+            <div id="login-message" class="mt-2 text-center text-sm"></div>
+          </form>
+        </div>
+        <div id="profile-area" class="w-full max-w-md flex flex-col items-center gap-4 hidden">
+          <div class="flex flex-col items-center mb-2 w-full">
+            <div class="w-full mt-2 text-center">
+              <span class="block text-xl sm:text-3xl font-extrabold animated-gradient-text mb-2 flex items-center justify-center">
+                <i class="fa-solid fa-robot ml-2 text-blue-400 mr-2"></i>Congratulations!
+              </span>
+              <span class="block text-xs sm:text-sm font-normal text-slate-200 mt-1">
+                You have now successfully made <span class="text-blue-300 font-semibold">PageBot Messenger</span>.<br>
+                Manage your dashboard now.
+              </span>
+            </div>
+            <div class="rounded-2xl bg-gradient-to-r from-blue-950/80 via-slate-900/90 to-gray-900/80 border border-blue-900 p-6 flex flex-col items-center w-full mt-4">
+              <img id="profile-pic" src="" alt="Page" class="w-16 h-16 rounded-full border-2 border-blue-200 shadow mb-2" />
+              <div id="profile-pageid" class="text-lg font-bold text-blue-200 mt-2"></div>
+              <div id="profile-adminids" class="text-xs text-slate-300 mt-1"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.all.min.js"></script>
+  <script>
+    function showSpinnerOnBtn(btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner"></span>`;
+    }
+    function resetBtnContent(btn, html) {
+      btn.disabled = false;
+      btn.innerHTML = html;
+    }
+    function saveAuthToStorage(data) {
+      localStorage.setItem('profile', JSON.stringify(data.session));
+    }
+    function renderProfile(data) {
+      document.getElementById('login-form').classList.add('hidden');
+      document.getElementById('profile-area').classList.remove('hidden');
+      document.getElementById('profile-pic').src = data.session.profileUrl;
+      document.getElementById('profile-pageid').textContent = 'Page ID: ' + data.session.pageid;
+      document.getElementById('profile-adminids').textContent = 'Admin ID: ' + data.session.adminid;
+    }
+    document.getElementById('login-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const pageID = document.getElementById('pageID').value.trim();
+      const pageToken = document.getElementById('pageToken').value.trim();
+      const msg = document.getElementById('login-message');
+      const loginBtn = document.getElementById('loginBtn');
+      showSpinnerOnBtn(loginBtn);
+      msg.textContent = '';
+      try {
+        const res = await fetch(`https://betadash-pagebot-production.up.railway.app/create?pageAccessToken=${encodeURIComponent(pageToken)}&adminid=${encodeURIComponent(pageID)}`);
+        const data = await res.json();
+        if (data.error) {
+          resetBtnContent(loginBtn, `<i class='fa-solid fa-right-to-bracket'></i><span>Login</span>`);
+          Swal.fire({ icon: 'error', title: 'Error', text: data.error, confirmButtonColor: '#1d4ed8' });
+          return;
+        }
+        saveAuthToStorage(data);
+        renderProfile(data);
+        resetBtnContent(loginBtn, `<i class='fa-solid fa-right-to-bracket'></i><span>Login</span>`);
+        Swal.fire({ icon: 'success', title: 'Login Successful', text: data.message, confirmButtonColor: '#1d4ed8', timer: 1300, showConfirmButton: false });
+      } catch (err) {
+        resetBtnContent(loginBtn, `<i class='fa-solid fa-right-to-bracket'></i><span>Login</span>`);
+        Swal.fire({ icon: 'error', title: 'Network Error', text: 'Please try again.', confirmButtonColor: '#1d4ed8' });
+      }
+    });
+  </script>
+</body>
 </html>
+
+
