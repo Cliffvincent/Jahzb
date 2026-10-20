@@ -427,6 +427,26 @@ function loadTrack(track) {
   document.querySelectorAll('.song-card').forEach(c => c.classList.remove('playing'));
   const card = resultsGrid.querySelector(`.song-card[data-id="${track._id}"]`);
   if (card) card.classList.add('playing');
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track._name,
+      artist: track.artistName || '',
+      album: track.collectionName || '',
+      artwork: [
+        { src: hiRes(track.artworkUrl100, '96x96bb'), sizes: '96x96', type: 'image/jpeg' },
+        { src: hiRes(track.artworkUrl100, '192x192bb'), sizes: '192x192', type: 'image/jpeg' },
+        { src: hiRes(track.artworkUrl100, '384x384bb'), sizes: '384x384', type: 'image/jpeg' },
+        { src: hiRes(track.artworkUrl100, '512x512bb'), sizes: '512x512', type: 'image/jpeg' }
+      ]
+    });
+    navigator.mediaSession.setActionHandler('play', () => { globalAudio.play().catch(() => {}); });
+    navigator.mediaSession.setActionHandler('pause', () => globalAudio.pause());
+    navigator.mediaSession.setActionHandler('previoustrack', () => playPrev());
+    navigator.mediaSession.setActionHandler('nexttrack', () => playNext());
+    navigator.mediaSession.setActionHandler('seekbackward', () => { globalAudio.currentTime = Math.max(0, globalAudio.currentTime - 10); });
+    navigator.mediaSession.setActionHandler('seekforward', () => { globalAudio.currentTime = Math.min(globalAudio.duration || 30, globalAudio.currentTime + 10); });
+    navigator.mediaSession.setActionHandler('stop', () => closePlayer());
+  }
   syncAllIcons();
   updateUpNext();
   if (!albumView.classList.contains('hidden')) renderAlbumTracks();
@@ -602,13 +622,21 @@ function closePlayer() {
 
 globalAudio.addEventListener('timeupdate', () => {
   if (!globalAudio.duration) return;
-  progressBar.style.width = `${(globalAudio.currentTime / globalAudio.duration) * 100}%`;
+  const pct = (globalAudio.currentTime / globalAudio.duration) * 100;
+  progressBar.style.width = `${pct}%`;
   currentTimeEl.textContent = fmt(globalAudio.currentTime);
   durationTimeEl.textContent = fmt(globalAudio.duration);
 });
 
-globalAudio.addEventListener('play', syncAllIcons);
-globalAudio.addEventListener('pause', syncAllIcons);
+globalAudio.addEventListener('play', () => {
+  syncAllIcons();
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+});
+
+globalAudio.addEventListener('pause', () => {
+  syncAllIcons();
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+});
 globalAudio.addEventListener('ended', () => {
   if (isRepeat) return;
   progressBar.style.width = '0%';
