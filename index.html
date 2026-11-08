@@ -1,665 +1,658 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Apple Music — Song Finder & Explorer</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: { sans: ['Inter', 'sans-serif'] },
-      colors: {
-        brand: { pink: '#fa233b', red: '#ff2d55', deep: '#070708', card: '#161618' }
-      }
-    }
-  }
-}
-</script>
-<style>
-*{ -webkit-tap-highlight-color: transparent; }
-body{
-  background:
-    radial-gradient(1000px 500px at 80% -10%, rgba(250,35,59,.14), transparent 60%),
-    radial-gradient(800px 400px at -10% 20%, rgba(255,45,85,.08), transparent 55%),
-    #070708;
-  color:#f5f5f7;
-  font-family:'Inter',sans-serif;
-  min-height:100vh;
-}
-.nav-blur{
-  background:rgba(14,14,16,.82);
-  backdrop-filter:blur(24px) saturate(1.4);
-  -webkit-backdrop-filter:blur(24px) saturate(1.4);
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-.song-card{
-  background:linear-gradient(160deg, rgba(38,38,44,.85), rgba(20,20,24,.9));
-  border:1px solid rgba(255,255,255,.07);
-  box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 10px 30px -18px rgba(0,0,0,.9);
-  transition:transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s, box-shadow .35s;
-}
-.song-card:hover{
-  transform:translateY(-5px);
-  border-color:rgba(250,35,59,.35);
-  box-shadow:0 24px 40px -20px rgba(0,0,0,.9), 0 0 24px -6px rgba(250,35,59,.25);
-}
-.song-card.playing{
-  border-color:rgba(250,35,59,.6);
-  box-shadow:0 0 0 1px rgba(250,35,59,.4), 0 20px 40px -18px rgba(250,35,59,.35);
-}
-.song-card.playing .card-title{ color:#ff5c72; }
-.eq{ display:inline-flex; align-items:flex-end; gap:2px; height:12px; }
-.eq span{ width:3px; border-radius:1px; background:#fff; animation:eq .9s ease-in-out infinite; }
-.eq span:nth-child(2){ animation-delay:.25s; }
-.eq span:nth-child(3){ animation-delay:.5s; }
-@keyframes eq{ 0%,100%{height:4px;} 50%{height:12px;} }
-.paused .eq span{ animation-play-state:paused; height:5px; }
-.chip{
-  border:1px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.03);
-  color:#c9c9ce;
-  transition:all .25s;
-}
-.chip:hover{ background:rgba(255,255,255,.08); color:#fff; }
-.chip.on{
-  background:linear-gradient(135deg,#ff2d55,#fa233b);
-  border-color:transparent;
-  color:#fff;
-  box-shadow:0 8px 20px -8px rgba(250,35,59,.6);
-}
-.btn-ghost{ color:#8e8e93; transition:color .2s, transform .2s; }
-.btn-ghost:hover{ color:#fff; }
-.btn-ghost:active{ transform:scale(.9); }
-.play-fab{
-  background:linear-gradient(135deg,#ff2d55,#fa233b);
-  box-shadow:0 10px 24px -8px rgba(250,35,59,.7);
-  transition:transform .2s, filter .2s;
-}
-.play-fab:hover{ transform:scale(1.07); filter:brightness(1.1); }
-.play-fab:active{ transform:scale(.95); }
-.skeleton{
-  animation:pulse 1.4s infinite ease-in-out;
-  background:linear-gradient(90deg,#17171a 25%,#26262c 50%,#17171a 75%);
-  background-size:200% 100%;
-}
-@keyframes pulse{ 0%,100%{opacity:.45;} 50%{opacity:.85;} }
-.grad-text{
-  background:linear-gradient(120deg,#ff6b81,#ff2d55 45%,#fa233b);
-  -webkit-background-clip:text; background-clip:text;
-  -webkit-text-fill-color:transparent;
-}
-#progressTrack{ position:relative; }
-#progressBar{ transition:width .12s linear; }
-#progressTrack:hover #progressBar{ background:#ff5c72; }
-.upto{ animation:slideUp .5s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes slideUp{ from{ transform:translateY(14px); opacity:0; } to{ transform:translateY(0); opacity:1; } }
-select#entitySelect{
-  -webkit-appearance:none; appearance:none;
-  background-color:rgba(0,0,0,.5);
-  background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
-  background-repeat:no-repeat;
-  background-position:right .5rem center;
-  background-size:1em;
-}
-select#entitySelect option{ background:#161618; color:#f5f5f7; }
-::-webkit-scrollbar{ width:9px; height:9px; }
-::-webkit-scrollbar-track{ background:#0b0b0d; }
-::-webkit-scrollbar-thumb{ background:#2a2a30; border-radius:5px; border:2px solid #0b0b0d; }
-::-webkit-scrollbar-thumb:hover{ background:#fa233b; }
-</style>
-</head>
-<body class="flex flex-col pb-32">
-
-<header class="sticky top-0 z-40 nav-blur px-4 lg:px-8 py-4">
-  <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-    <div class="flex items-center gap-3 cursor-pointer select-none" onclick="handleTagClick('Parting Time')">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-red to-brand-pink flex items-center justify-center shadow-lg shadow-brand-pink/40 relative">
-        <i class="fa-solid fa-music text-white text-lg"></i>
-      </div>
-      <div>
-        <h1 class="font-extrabold text-xl tracking-tight leading-none flex items-center gap-1.5">
-          Apple Music <span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-pink/15 text-brand-pink border border-brand-pink/30 font-bold uppercase tracking-wider">Finder</span>
-        </h1>
-        <p class="text-[11px] text-gray-500 mt-1 tracking-wide">Explore songs, previews & iTunes metadata</p>
-      </div>
-    </div>
-    <form id="searchForm" class="w-full md:w-1/2 max-w-xl relative flex items-center">
-      <i class="fa-solid fa-magnifying-glass absolute left-4 text-gray-500 text-sm"></i>
-      <select id="entitySelect" class="absolute right-[100px] bg-transparent text-[11px] text-gray-300 font-semibold border border-white/10 rounded-full px-3 py-1.5 pr-7 cursor-pointer focus:outline-none hover:border-brand-pink/50 transition-colors">
-        <option value="song">Songs</option>
-        <option value="album">Albums</option>
-        <option value="musicArtist">Artists</option>
-        <option value="musicVideo">Music Videos</option>
-        <option value="musicTrack">Tracks + Videos</option>
-        <option value="mix">DJ Mixes</option>
-      </select>
-      <input id="searchInput" type="text" autocomplete="off" placeholder="Search songs, artists, albums…"
-        class="w-full bg-black/50 border border-white/10 text-sm rounded-full pl-11 pr-[190px] py-3 text-white placeholder-gray-600 focus:outline-none focus:border-brand-pink/60 focus:ring-2 focus:ring-brand-pink/25 transition-all duration-300">
-      <button type="submit" class="absolute right-1.5 bg-gradient-to-r from-brand-red to-brand-pink text-white font-semibold text-xs px-5 py-2 rounded-full shadow-md shadow-brand-pink/25 hover:brightness-110 active:scale-95 transition-all">Search</button>
-    </form>
-  </div>
-</header>
-
-<main class="max-w-7xl mx-auto px-4 lg:px-8 w-full mt-8 flex-1">
-  <section class="mb-8">
-    <div class="flex items-center gap-3 mb-4">
-      <span class="text-[11px] font-bold text-gray-500 uppercase tracking-[.15em]">Quick Queries</span>
-      <span class="h-px flex-1 bg-white/5"></span>
-    </div>
-    <div class="flex flex-wrap items-center gap-2" id="chipContainer">
-      <button data-tag="Parting Time" onclick="handleTagClick('Parting Time')" class="chip on px-4 py-2 rounded-full text-xs font-semibold"><i class="fa-solid fa-compact-disc mr-1.5"></i>Parting Time</button>
-      <button data-tag="Radio Stations" onclick="handleTagClick('Radio Stations')" class="chip px-4 py-2 rounded-full text-xs font-semibold"><i class="fa-solid fa-radio mr-1.5"></i>Radio Hits</button>
-      <button data-tag="New Music" onclick="handleTagClick('New Music')" class="chip px-4 py-2 rounded-full text-xs font-semibold"><i class="fa-solid fa-bolt mr-1.5"></i>New Music</button>
-      <button data-tag="Taylor Swift" onclick="handleTagClick('Taylor Swift')" class="chip px-4 py-2 rounded-full text-xs font-semibold"><i class="fa-solid fa-star mr-1.5"></i>Taylor Swift</button>
-      <button data-tag="K-Pop" onclick="handleTagClick('K-Pop')" class="chip px-4 py-2 rounded-full text-xs font-semibold"><i class="fa-solid fa-fire mr-1.5"></i>K-Pop</button>
-      <button data-tag="Rock" onclick="handleTagClick('Rock')" class="chip px-4 py-2 rounded-full text-xs font-semibold"><i class="fa-solid fa-guitar mr-1.5"></i>Rock Classics</button>
-    </div>
-  </section>
-
-  <div class="flex items-center justify-between mb-6 pb-3 border-b border-white/5">
-    <h2 id="searchHeading" class="text-lg md:text-xl font-bold tracking-tight">
-      Showing results for “<span class="grad-text" id="queryText">Parting Time</span>”
-    </h2>
-    <span id="resultCount" class="text-[11px] text-gray-400 font-semibold bg-white/5 px-3 py-1.5 rounded-full border border-white/5">0 results</span>
-  </div>
-
-  <div id="skeletonGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PinoyMoviePedia — Streaming Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      document.write(Array(8).fill(0).map(() =>
-        '<div class="song-card rounded-2xl p-4"><div class="w-full aspect-square rounded-xl skeleton mb-4"></div><div class="h-4 w-3/4 rounded-md skeleton mb-2"></div><div class="h-3 w-1/2 rounded-md skeleton"></div></div>'
-      ).join(''));
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        },
+                        dark: {
+                            base: '#070a11',
+                            surface: '#0f172a',
+                            card: '#162032',
+                            border: '#223049',
+                            hover: '#1e2d46'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
     </script>
-  </div>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #070a11;
+            color: #f8fafc;
+        }
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070a11;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #223049;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
+        }
+        .aspect-video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        .aspect-video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        #playerWrapper.is-expanded {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            max-width: none;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border-radius: 0;
+        }
+        #playerWrapper.is-expanded .aspect-video-container {
+            padding-bottom: 0;
+            height: 100%;
+            border-radius: 0;
+        }
+        #playerWrapper.is-expanded #expandBtn {
+            top: 12px;
+            right: 12px;
+        }
+        #expandBtn {
+            z-index: 5;
+        }
+        .fade-in {
+            animation: fadeIn 0.25s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
 
-  <div id="resultsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden"></div>
-
-  <div id="emptyState" class="hidden flex-col items-center justify-center py-24 text-center">
-    <div class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center text-3xl text-gray-600 mb-5 border border-white/5">
-      <i class="fa-solid fa-record-vinyl"></i>
-    </div>
-    <h3 class="text-lg font-bold text-white mb-1">No results found</h3>
-    <p class="text-sm text-gray-500 max-w-sm">We couldn't find anything matching your search. Try a different term or category.</p>
-  </div>
-
-  <section id="albumView" class="hidden">
-    <button onclick="closeAlbumView()" class="btn-ghost text-xs font-semibold mb-6 flex items-center gap-2"><i class="fa-solid fa-chevron-left"></i> Back to results</button>
-    <div class="flex flex-col md:flex-row gap-6 md:gap-8 mb-8">
-      <img id="albumArt" src="" alt="" class="w-44 h-44 md:w-60 md:h-60 rounded-2xl object-cover border border-white/10 shadow-2xl shadow-black/60 bg-black/40">
-      <div class="flex flex-col justify-end min-w-0">
-        <span id="albumKind" class="text-[10px] font-bold uppercase tracking-widest text-brand-pink mb-2">Album</span>
-        <h2 id="albumName" class="text-2xl md:text-4xl font-extrabold tracking-tight leading-tight mb-2 truncate">—</h2>
-        <p id="albumArtist" class="text-sm md:text-base text-gray-300 font-medium mb-3 truncate">—</p>
-        <p id="albumMeta" class="text-xs text-gray-500 mb-5">—</p>
-        <div class="flex items-center gap-3">
-          <button onclick="playAlbum()" id="albumPlayBtn" class="bg-gradient-to-r from-brand-red to-brand-pink text-white font-bold text-sm px-6 py-3 rounded-full shadow-lg shadow-brand-pink/30 hover:brightness-110 active:scale-95 transition-all">
-            <i class="fa-solid fa-play mr-2 text-xs"></i>Preview
-          </button>
-          <a id="albumLink" href="#" target="_blank" class="chip px-5 py-3 rounded-full text-xs font-semibold no-underline"><i class="fa-solid fa-arrow-up-right-from-square mr-2"></i>Apple Music</a>
+    <header class="sticky top-0 z-40 glass-nav">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 cursor-pointer shrink-0" onclick="switchCategory('pinay-sexy')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl font-black tracking-tight text-white">PINOY<span class="text-brand-500">MOVIE</span></span>
+                    <span class="block text-[10px] font-semibold tracking-widest text-brand-400 uppercase -mt-1">Pedia HD</span>
+                </div>
+            </div>
+            <nav class="flex items-center gap-2 overflow-x-auto py-2 no-scrollbar">
+                <button id="nav-pinay-sexy" onclick="switchCategory('pinay-sexy')" 
+                    class="nav-tab px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-dark-card whitespace-nowrap">
+                    🔥 Pinay Sexy
+                </button>
+                <button id="nav-release" onclick="switchCategory('release')" 
+                    class="nav-tab px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-dark-card whitespace-nowrap">
+                    📅 Year Releases
+                </button>
+                <button id="nav-genre" onclick="switchCategory('genre')" 
+                    class="nav-tab px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-dark-card whitespace-nowrap">
+                    🎭 Genres
+                </button>
+            </nav>
         </div>
-      </div>
-    </div>
-    <h3 class="text-[11px] font-bold text-gray-500 uppercase tracking-[.15em] mb-4">Tracks</h3>
-    <div id="albumTracks" class="flex flex-col gap-1"></div>
-  </section>
-</main>
+    </header>
 
-<footer id="playerBar" class="fixed bottom-0 left-0 right-0 z-50 nav-blur border-t border-white/8 p-3 md:px-8 translate-y-full transition-transform duration-500">
-  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-    <div class="flex items-center gap-3 w-[30%] min-w-0">
-      <img id="playerArtwork" src="" alt="" class="w-12 h-12 rounded-lg object-cover border border-white/10 shadow-lg bg-black/40">
-      <div class="min-w-0">
-        <h4 id="playerTrackName" class="font-semibold text-sm text-white truncate">—</h4>
-        <p id="playerArtistName" class="text-[11px] text-gray-400 truncate">—</p>
-      </div>
-    </div>
-
-    <div class="flex flex-col items-center w-[40%] max-w-md">
-      <div class="flex items-center gap-5 mb-1.5">
-        <button onclick="shuffleMode()" id="shuffleBtn" class="btn-ghost text-xs" title="Shuffle"><i class="fa-solid fa-shuffle"></i></button>
-        <button onclick="playPrev()" class="btn-ghost text-xs" title="Previous"><i class="fa-solid fa-backward-step text-base"></i></button>
-        <button onclick="togglePlayPause()" class="play-fab w-11 h-11 rounded-full text-white flex items-center justify-center">
-          <i id="mainPlayIcon" class="fa-solid fa-play text-sm translate-x-0.5"></i>
-        </button>
-        <button onclick="playNext()" class="btn-ghost text-xs" title="Play next"><i class="fa-solid fa-forward-step text-base"></i></button>
-        <button onclick="repeatMode()" id="repeatBtn" class="btn-ghost text-xs" title="Repeat"><i class="fa-solid fa-repeat"></i></button>
-      </div>
-      <div class="w-full flex items-center gap-2">
-        <span id="currentTime" class="text-[10px] text-gray-500 w-9 text-right font-mono">0:00</span>
-        <div id="progressTrack" class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden cursor-pointer" onclick="seekAudio(event)">
-          <div id="progressBar" class="h-full bg-gradient-to-r from-brand-red to-brand-pink w-0 rounded-full"></div>
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div class="min-w-0">
+                <h1 id="categoryTitle" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white truncate">Pinay Sexy Movies</h1>
+                <p id="categoryDesc" class="text-sm text-slate-400 mt-1 truncate">Browse trending pinay sexy adult title collections.</p>
+            </div>
+            <div id="yearSelectorContainer" class="hidden md:pl-4">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 md:hidden">Select Release Year</label>
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar" id="yearPills"></div>
+            </div>
         </div>
-        <span id="durationTime" class="text-[10px] text-gray-500 w-9 font-mono">0:30</span>
-      </div>
+
+        <div id="contentArea"></div>
+
+        <div id="paginationBar" class="hidden mt-12 flex justify-center items-center gap-3">
+            <button id="prevBtn" onclick="changePage(-1)" class="px-5 py-2.5 rounded-xl bg-dark-card border border-dark-border text-slate-300 text-sm font-semibold hover:bg-brand-600 hover:text-white hover:border-brand-600 disabled:opacity-40 disabled:pointer-events-none transition-all duration-200">
+                ← Previous Page
+            </button>
+            <span id="pageIndicator" class="px-4 py-2 rounded-xl bg-dark-card text-xs font-bold text-slate-400 border border-dark-border">
+                Page 1
+            </span>
+            <button id="nextBtn" onclick="changePage(1)" class="px-5 py-2.5 rounded-xl bg-dark-card border border-dark-border text-slate-300 text-sm font-semibold hover:bg-brand-600 hover:text-white hover:border-brand-600 disabled:opacity-40 disabled:pointer-events-none transition-all duration-200">
+                Next Page →
+            </button>
+        </div>
+    </main>
+
+    <footer class="border-t border-dark-border/50 py-6 bg-dark-base text-center">
+        <p class="text-xs text-slate-500 font-medium">© 2026 PinoyMoviePedia Portal. All rights reserved.</p>
+    </footer>
+
+    <div id="playerModal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-xl items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
+        <div class="relative w-full max-w-5xl bg-dark-surface border border-dark-border rounded-2xl shadow-2xl overflow-hidden my-auto flex flex-col fade-in">
+
+            <div class="flex items-center justify-between gap-3 px-4 sm:px-6 py-3.5 border-b border-dark-border bg-gradient-to-r from-dark-card to-dark-surface">
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <div class="w-9 h-13 aspect-[2/3] rounded-md overflow-hidden bg-dark-border shrink-0 shadow-md">
+                        <img id="modalHeaderPoster" src="" alt="Poster" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                    </div>
+                    <div class="min-w-0">
+                        <h2 id="modalMovieTitle" class="text-base sm:text-lg font-bold text-white truncate">Loading Movie...</h2>
+                        <span id="modalLiveBadge" class="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Now Streaming
+                        </span>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="w-9 h-9 rounded-full bg-dark-border/60 hover:bg-red-500/20 hover:text-red-400 text-slate-400 flex items-center justify-center transition-all duration-200 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-4 sm:p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+
+                <div id="playerWrapper" class="relative w-full bg-black rounded-xl border border-dark-border shadow-lg shadow-black/60 overflow-hidden transition-all duration-200">
+                    <div class="aspect-video-container">
+                        <iframe id="videoIframe" 
+                            src="" 
+                            title="Video Player"
+                            allow="autoplay; fullscreen; picture-in-picture; encrypted-media" 
+                            allowfullscreen="true"
+                            webkitallowfullscreen="true" 
+                            mozallowfullscreen="true">
+                        </iframe>
+                    </div>
+                    <button id="expandBtn" onclick="toggleFullSize()" 
+                        class="absolute top-2 right-2 px-3 py-1.5 rounded-lg bg-black/70 hover:bg-brand-600 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-md border border-white/10 transition-all duration-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                        </svg>
+                        <span id="expandBtnLabel">Full Size</span>
+                    </button>
+                </div>
+
+                <div class="space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Available Video Servers:</span>
+                    <div id="serverTabs" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6 p-4 rounded-xl bg-gradient-to-br from-dark-card to-dark-surface border border-dark-border/80">
+                    <div class="w-40 sm:w-48 mx-auto md:mx-0 shrink-0">
+                        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-dark-border relative shadow-lg">
+                            <img id="modalPoster" src="" alt="Poster" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300x450/162032/60a5fa?text=No+Poster'">
+                        </div>
+                    </div>
+                    <div class="flex-grow space-y-3 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="px-2.5 py-1 rounded-md bg-brand-500/20 border border-brand-500/30 text-brand-400 text-xs font-bold">HD Quality</span>
+                            <span class="px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium">PinoyMoviePedia Player</span>
+                        </div>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-300">Synopsis</h3>
+                        <p id="modalSynopsis" class="text-sm text-slate-400 leading-relaxed max-h-48 overflow-y-auto pr-2">
+                            Fetching movie overview...
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="flex items-center justify-end gap-2 w-[30%]">
-      <span id="upNextLabel" class="hidden lg:block text-[10px] text-gray-500 truncate max-w-[180px]"></span>
-      <a id="playerAppleLink" href="#" target="_blank" class="hidden md:flex items-center gap-1.5 text-[11px] text-brand-pink font-semibold bg-brand-pink/10 px-3 py-1.5 rounded-full border border-brand-pink/20 hover:bg-brand-pink/20 transition-colors">
-        <span>Apple Music</span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-      </a>
-      <button onclick="closePlayer()" class="btn-ghost p-2" title="Close"><i class="fa-solid fa-xmark text-lg"></i></button>
-    </div>
-  </div>
-</footer>
+    <script>
+        const API_BASE = "https://betadash-api-swordslush-production.up.railway.app/pinoymoviepedia";
+        const PLACEHOLDER = "https://via.placeholder.com/300x450/162032/60a5fa?text=No+Poster";
 
-<audio id="globalAudio" class="hidden" preload="auto"></audio>
+        let currentCategory = 'pinay-sexy';
+        let currentPage = 1;
+        let selectedYear = 2026;
+        let isExpanded = false;
 
-<script>
-const searchForm = document.getElementById('searchForm');
-const searchInput = document.getElementById('searchInput');
-const entitySelect = document.getElementById('entitySelect');
-const queryText = document.getElementById('queryText');
-const resultCount = document.getElementById('resultCount');
-const skeletonGrid = document.getElementById('skeletonGrid');
-const resultsGrid = document.getElementById('resultsGrid');
-const emptyState = document.getElementById('emptyState');
-const playerBar = document.getElementById('playerBar');
-const playerArtwork = document.getElementById('playerArtwork');
-const playerTrackName = document.getElementById('playerTrackName');
-const playerArtistName = document.getElementById('playerArtistName');
-const playerAppleLink = document.getElementById('playerAppleLink');
-const upNextLabel = document.getElementById('upNextLabel');
-const globalAudio = document.getElementById('globalAudio');
-const mainPlayIcon = document.getElementById('mainPlayIcon');
-const progressBar = document.getElementById('progressBar');
-const progressTrack = document.getElementById('progressTrack');
-const currentTimeEl = document.getElementById('currentTime');
-const durationTimeEl = document.getElementById('durationTime');
-const shuffleBtn = document.getElementById('shuffleBtn');
-const repeatBtn = document.getElementById('repeatBtn');
-const albumView = document.getElementById('albumView');
-const albumArt = document.getElementById('albumArt');
-const albumName = document.getElementById('albumName');
-const albumArtist = document.getElementById('albumArtist');
-const albumMeta = document.getElementById('albumMeta');
-const albumKind = document.getElementById('albumKind');
-const albumLink = document.getElementById('albumLink');
-const albumTracksEl = document.getElementById('albumTracks');
+        window.addEventListener('DOMContentLoaded', () => {
+            initYearSelector();
+            switchCategory('pinay-sexy');
+        });
 
-const ENTITY_LABEL = {
-  song: 'Songs',
-  album: 'Albums',
-  musicArtist: 'Artists',
-  musicVideo: 'Music Videos',
-  musicTrack: 'Tracks + Videos',
-  mix: 'DJ Mixes'
-};
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (isExpanded) {
+                    exitFullSize();
+                } else {
+                    closeModal();
+                }
+            }
+        });
 
-let songList = [];
-let playQueue = [];
-let albumTracks = [];
-let currentAlbum = null;
-let currentTrackId = null;
-let isShuffle = false;
-let isRepeat = false;
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && isExpanded) {
+                exitFullSize();
+            }
+        });
 
-document.addEventListener('DOMContentLoaded', () => fetchSongs('Parting Time', 'song'));
+        function initYearSelector() {
+            const container = document.getElementById('yearPills');
+            container.innerHTML = '';
+            for (let year = 2026; year >= 2020; year--) {
+                const btn = document.createElement('button');
+                btn.id = `year-btn-${year}`;
+                btn.className = `px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 border whitespace-nowrap ${
+                    year === selectedYear 
+                        ? 'bg-brand-600 border-brand-600 text-white shadow-md shadow-brand-600/30' 
+                        : 'bg-dark-card border-dark-border text-slate-400 hover:text-white hover:bg-dark-hover'
+                }`;
+                btn.innerText = year;
+                btn.onclick = () => selectYear(year);
+                container.appendChild(btn);
+            }
+        }
 
-searchForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const term = searchInput.value.trim();
-  if (term) fetchSongs(term, entitySelect.value);
-});
+        function selectYear(year) {
+            selectedYear = year;
+            initYearSelector();
+            fetchReleases();
+        }
 
-entitySelect.addEventListener('change', () => {
-  const term = searchInput.value.trim() || queryText.textContent;
-  fetchSongs(term, entitySelect.value);
-});
+        function switchCategory(category) {
+            currentCategory = category;
+            currentPage = 1;
 
-function handleTagClick(term) {
-  searchInput.value = term;
-  setChip(term);
-  fetchSongs(term, entitySelect.value);
-}
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-brand-600', 'text-white', 'shadow-lg', 'shadow-brand-600/30');
+                tab.classList.add('text-slate-300');
+            });
+            const activeTab = document.getElementById(`nav-${category}`);
+            if (activeTab) {
+                activeTab.classList.add('bg-brand-600', 'text-white', 'shadow-lg', 'shadow-brand-600/30');
+                activeTab.classList.remove('text-slate-300');
+            }
 
-function setChip(activeTerm) {
-  document.querySelectorAll('.chip').forEach(chip => {
-    chip.classList.toggle('on', (chip.dataset.tag || '').toLowerCase() === activeTerm.toLowerCase());
-  });
-}
+            const yearContainer = document.getElementById('yearSelectorContainer');
+            const categoryTitle = document.getElementById('categoryTitle');
+            const categoryDesc = document.getElementById('categoryDesc');
+            const paginationBar = document.getElementById('paginationBar');
 
-async function fetchSongs(term, entity) {
-  queryText.textContent = `${term} · ${ENTITY_LABEL[entity] || entity}`;
-  skeletonGrid.classList.remove('hidden');
-  resultsGrid.classList.add('hidden');
-  emptyState.classList.add('hidden');
-  albumView.classList.add('hidden');
-  try {
-    const res = await fetch(`https://itunes.apple.com/search?media=music&term=${encodeURIComponent(term)}&entity=${entity}&limit=24`);
-    if (!res.ok) throw new Error('request failed');
-    const data = await res.json();
-    songList = (data.results || []).map(t => ({
-      ...t,
-      _id: t.trackId ?? t.collectionId ?? t.artistId ?? Math.random(),
-      _name: t.trackName || t.collectionName || t.artistName || 'Untitled',
-      _preview: !!t.previewUrl,
-      _url: t.trackViewUrl || t.collectionViewUrl || t.artistViewUrl || '#'
-    }));
-    playQueue = songList.filter(t => t._preview);
-    renderSongs();
-  } catch (err) {
-    songList = [];
-    renderSongs();
-  } finally {
-    skeletonGrid.classList.add('hidden');
-  }
-}
+            if (category === 'pinay-sexy') {
+                yearContainer.classList.add('hidden');
+                categoryTitle.innerText = "Pinay Sexy Movies";
+                categoryDesc.innerText = "Collection of local sexy, adult, and VMX cinema releases.";
+                paginationBar.classList.remove('hidden');
+                fetchPinaySexy();
+            } else if (category === 'release') {
+                yearContainer.classList.remove('hidden');
+                categoryTitle.innerText = "Year Releases";
+                categoryDesc.innerText = `Browse movies released specifically in the year ${selectedYear}.`;
+                paginationBar.classList.add('hidden');
+                fetchReleases();
+            } else if (category === 'genre') {
+                yearContainer.classList.add('hidden');
+                categoryTitle.innerText = "Movie Genres";
+                categoryDesc.innerText = "Browse top movies categorized by Comedy, Action, and Romance.";
+                paginationBar.classList.add('hidden');
+                fetchGenres();
+            }
+        }
 
-function hiRes(url, size) {
-  if (!url) return '';
-  return url.replace(/\/\d+x\d+bb/, `/${size}`);
-}
+        function showSkeletons() {
+            const contentArea = document.getElementById('contentArea');
+            let skeletons = `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">`;
+            for (let i = 0; i < 10; i++) {
+                skeletons += `
+                    <div class="bg-dark-card border border-dark-border rounded-xl overflow-hidden animate-pulse">
+                        <div class="w-full aspect-[2/3] bg-dark-border/60"></div>
+                        <div class="p-3 space-y-2">
+                            <div class="h-4 bg-dark-border/80 rounded w-3/4"></div>
+                            <div class="h-3 bg-dark-border/50 rounded w-1/2"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            skeletons += `</div>`;
+            contentArea.innerHTML = skeletons;
+        }
 
-function renderSongs() {
-  resultsGrid.innerHTML = '';
-  resultCount.textContent = `${songList.length} results`;
-  if (!songList.length) {
-    emptyState.classList.remove('hidden');
-    emptyState.classList.add('flex');
-    return;
-  }
-  emptyState.classList.add('hidden');
-  emptyState.classList.remove('flex');
-  resultsGrid.classList.remove('hidden');
-  songList.forEach((track, i) => {
-    const art = hiRes(track.artworkUrl100 || track.artworkUrl60, '600x600bb');
-    const year = track.releaseDate ? new Date(track.releaseDate).getFullYear() : '—';
-    const kindLabel = (track.wrapperType === 'artist' ? 'Artist' : track.kind || 'Music').replace(/([A-Z])/g, ' $1').trim();
-    const isVideo = track.kind === 'music-video';
-    const sub2 = track.collectionName || track.primaryGenreName || '';
-    const isCur = currentTrackId === track._id;
-    const isAlbum = track.wrapperType === 'collection';
-    const playBtn = track._preview
-      ? `<button onclick="event.stopPropagation();playTrack(${track._id})" class="play-fab w-12 h-12 rounded-full text-white flex items-center justify-center opacity-95"><i id="cardPlayIcon-${track._id}" class="fa-solid fa-play text-lg translate-x-0.5"></i></button>`
-      : (isAlbum
-        ? `<button onclick="event.stopPropagation();openAlbum(${track._id})" class="play-fab w-12 h-12 rounded-full text-white flex items-center justify-center opacity-95"><i class="fa-solid fa-arrow-up-right-from-square text-base"></i></button>`
-        : `<a href="${track._url}" target="_blank" onclick="event.stopPropagation()" class="w-12 h-12 rounded-full bg-white/90 text-black flex items-center justify-center opacity-95 hover:bg-white transition"><i class="fa-solid fa-arrow-up-right-from-square text-base"></i></a>`);
-    const nextBtn = track._preview
-      ? `<button onclick="event.stopPropagation();playTrack(${songList[i + 1] && songList[i + 1]._preview ? songList[i + 1]._id : track._id})" class="btn-ghost text-[11px]" title="Play next"><i class="fa-solid fa-forward-step"></i></button>`
-      : '';
-    const card = `
-      <div ${isAlbum ? `onclick="openAlbum(${track._id})"` : ''} class="song-card rounded-2xl p-4 flex flex-col upto ${isCur ? 'playing' : ''} ${isAlbum ? 'cursor-pointer' : ''}" style="animation-delay:${Math.min(i * 40, 400)}ms" data-id="${track._id}">
-        <div class="relative w-full aspect-square rounded-xl overflow-hidden mb-3 bg-black/50 group">
-          <img src="${art}" alt="${esc(track._name)}" loading="lazy" class="w-full h-full object-cover">
-          <div class="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            ${playBtn}
-          </div>
-          <span class="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-black/65 text-gray-200 border border-white/10">${esc(kindLabel)}</span>
-          ${isVideo ? '<span class="absolute top-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-md bg-brand-pink text-white"><i class="fa-solid fa-video text-[8px] mr-1"></i>Video</span>' : ''}
-          ${track.trackCount ? `<span class="absolute bottom-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-md bg-black/65 text-gray-200 border border-white/10">${track.trackCount} tracks</span>` : ''}
-          ${isCur ? '<span class="absolute bottom-2 left-2 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-brand-pink/90 text-white" id="nowBadge"><span class="eq"><span></span><span></span><span></span></span>Now Playing</span>' : ''}
-        </div>
-        <h3 class="card-title font-bold text-sm text-white truncate leading-snug transition-colors" title="${esc(track._name)}">${esc(track._name)}</h3>
-        <p class="text-[11px] text-gray-400 truncate mt-0.5" title="${esc(track.artistName || track.genre || '')}">${esc(track.artistName || track.genre || '')}</p>
-        ${sub2 ? `<p class="text-[10px] text-gray-600 truncate mt-0.5" title="${esc(sub2)}">${esc(sub2)}</p>` : ''}
-        <div class="pt-2.5 mt-2.5 border-t border-white/5 flex items-center justify-between">
-          <span class="text-[10px] font-mono text-gray-500">${year}</span>
-          <div class="flex items-center gap-3">
-            ${nextBtn}
-            <a href="${track._url}" target="_blank" class="btn-ghost text-[11px]" title="Open in iTunes"><i class="fa-solid fa-external-link"></i></a>
-          </div>
-        </div>
-      </div>`;
-    resultsGrid.insertAdjacentHTML('beforeend', card);
-  });
-  syncAllIcons();
-  updateUpNext();
-}
+        async function fetchPinaySexy() {
+            showSkeletons();
+            try {
+                const res = await fetch(`${API_BASE}/pinay-sexy?page=${currentPage}`);
+                const data = await res.json();
+                renderMovieGrid(data.results || []);
+                updatePagination(19);
+            } catch (err) {
+                showError("Hindi ma-fetch ang Pinay Sexy movies.");
+            }
+        }
 
-function currentIndex() {
-  return songList.findIndex(s => s._id === currentTrackId);
-}
+        async function fetchReleases() {
+            showSkeletons();
+            try {
+                const res = await fetch(`${API_BASE}/release?year=${selectedYear}`);
+                const data = await res.json();
+                renderMovieGrid(data.results || []);
+            } catch (err) {
+                showError(`Hindi ma-load ang releases para sa taong ${selectedYear}.`);
+            }
+        }
 
-function loadTrack(track) {
-  if (!track._preview) return;
-  currentTrackId = track._id;
-  globalAudio.src = track.previewUrl;
-  globalAudio.play().catch(() => {});
-  playerArtwork.src = hiRes(track.artworkUrl100, '300x300bb');
-  playerTrackName.textContent = track._name;
-  playerArtistName.textContent = track.artistName || '';
-  playerAppleLink.href = track._url;
-  playerBar.classList.remove('translate-y-full');
-  document.querySelectorAll('.song-card').forEach(c => c.classList.remove('playing'));
-  const card = resultsGrid.querySelector(`.song-card[data-id="${track._id}"]`);
-  if (card) card.classList.add('playing');
-  if ('mediaSession' in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: track._name,
-      artist: track.artistName || '',
-      album: track.collectionName || '',
-      artwork: [
-        { src: hiRes(track.artworkUrl100, '96x96bb'), sizes: '96x96', type: 'image/jpeg' },
-        { src: hiRes(track.artworkUrl100, '192x192bb'), sizes: '192x192', type: 'image/jpeg' },
-        { src: hiRes(track.artworkUrl100, '384x384bb'), sizes: '384x384', type: 'image/jpeg' },
-        { src: hiRes(track.artworkUrl100, '512x512bb'), sizes: '512x512', type: 'image/jpeg' }
-      ]
-    });
-    navigator.mediaSession.setActionHandler('play', () => { globalAudio.play().catch(() => {}); });
-    navigator.mediaSession.setActionHandler('pause', () => globalAudio.pause());
-    navigator.mediaSession.setActionHandler('previoustrack', () => playPrev());
-    navigator.mediaSession.setActionHandler('nexttrack', () => playNext());
-    navigator.mediaSession.setActionHandler('seekbackward', () => { globalAudio.currentTime = Math.max(0, globalAudio.currentTime - 10); });
-    navigator.mediaSession.setActionHandler('seekforward', () => { globalAudio.currentTime = Math.min(globalAudio.duration || 30, globalAudio.currentTime + 10); });
-    navigator.mediaSession.setActionHandler('stop', () => closePlayer());
-  }
-  syncAllIcons();
-  updateUpNext();
-  if (!albumView.classList.contains('hidden')) renderAlbumTracks();
-}
+        async function fetchGenres() {
+            showSkeletons();
+            try {
+                const res = await fetch(`${API_BASE}/genre?page=${currentPage}`);
+                const data = await res.json();
+                renderGenreSections(data.results || {});
+            } catch (err) {
+                showError("Nagkaroon ng problema sa pag-load ng mga Genres.");
+            }
+        }
 
-function playTrack(trackId) {
-  const track = playQueue.find(s => s._id === trackId) || songList.find(s => s._id === trackId) || albumTracks.find(s => s._id === trackId);
-  if (!track) return;
-  if (playQueue.every(s => s._id !== trackId)) {
-    playQueue = (albumTracks.some(s => s._id === trackId) ? albumTracks : songList).filter(s => s._preview);
-  }
-  if (currentTrackId === trackId) {
-    togglePlayPause();
-    return;
-  }
-  loadTrack(track);
-}
+        function renderMovieGrid(movies) {
+            const contentArea = document.getElementById('contentArea');
+            if (!movies || movies.length === 0) {
+                contentArea.innerHTML = `<div class="text-center py-16 text-slate-400">Walang nahanap na pelikula.</div>`;
+                return;
+            }
 
-async function openAlbum(collectionId) {
-  const album = songList.find(s => s._id === collectionId && s.wrapperType === 'collection');
-  if (!album) return;
-  currentAlbum = album;
-  albumArt.src = hiRes(album.artworkUrl100, '600x600bb');
-  albumName.textContent = album._name;
-  albumArtist.textContent = album.artistName || 'Various Artists';
-  albumKind.textContent = album.collectionType === 'Album' ? 'Album' : (album.collectionType || 'Album');
-  const year = album.releaseDate ? new Date(album.releaseDate).getFullYear() : '';
-  albumMeta.textContent = [album.primaryGenreName, year, album.trackCount ? `${album.trackCount} songs` : ''].filter(Boolean).join(' · ') || '—';
-  albumLink.href = album._url;
-  albumTracksEl.innerHTML = '<div class="h-4 w-2/3 rounded-md skeleton mb-3"></div><div class="h-4 w-1/2 rounded-md skeleton mb-3"></div><div class="h-4 w-3/5 rounded-md skeleton mb-3"></div>';
-  resultsGrid.classList.add('hidden');
-  emptyState.classList.add('hidden');
-  albumView.classList.remove('hidden');
-  albumTracksEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  try {
-    const res = await fetch(`https://itunes.apple.com/lookup?id=${collectionId}&entity=song&limit=100`);
-    if (!res.ok) throw new Error('failed');
-    const data = await res.json();
-    albumTracks = (data.results || []).filter(t => t.wrapperType === 'track' && t.previewUrl).map(t => ({
-      ...t,
-      _id: t.trackId,
-      _name: t.trackName,
-      _preview: true,
-      _url: t.trackViewUrl || '#'
-    }));
-  } catch (err) {
-    albumTracks = [];
-  }
-  renderAlbumTracks();
-}
+            let html = `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">`;
+            movies.forEach(movie => {
+                const img = (movie.img || movie.image || '').trim();
+                const title = movie.title || 'Untitled';
+                const link = movie.link || '';
+                const quality = movie.quality || 'HD';
+                const subText = movie.releaseDate || (movie.genres ? movie.genres.join(', ') : 'Pinoy Movie');
 
-function renderAlbumTracks() {
-  albumTracksEl.innerHTML = '';
-  if (!albumTracks.length) {
-    albumTracksEl.innerHTML = '<p class="text-xs text-gray-600 py-4">No preview tracks available for this album.</p>';
-    return;
-  }
-  albumTracks.forEach((t, i) => {
-    const isCur = currentTrackId === t._id;
-    const row = `
-      <div onclick="playTrack(${t._id})" class="group flex items-center gap-4 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-white/5 transition-colors ${isCur ? 'bg-brand-pink/10' : ''}">
-        <span class="text-[11px] font-mono text-gray-500 w-5 text-center group-hover:hidden">${isCur ? '<span class="eq"><span></span><span></span><span></span></span>' : i + 1}</span>
-        <span class="w-5 text-center hidden group-hover:block"><i class="fa-solid ${isCur && !globalAudio.paused ? 'fa-pause' : 'fa-play'} text-[11px] text-white"></i></span>
-        <span class="w-9 h-9 rounded-md overflow-hidden border border-white/10 flex-shrink-0"><img src="${hiRes(t.artworkUrl100, '200x200bb')}" alt="" class="w-full h-full object-cover"></span>
-        <div class="min-w-0 flex-1">
-          <p class="text-sm font-semibold truncate ${isCur ? 'text-brand-pink' : 'text-white'}">${esc(t._name)}</p>
-          <p class="text-[11px] text-gray-500 truncate">${esc(t.artistName)}</p>
-        </div>
-        <span class="text-[10px] font-mono text-gray-600">${t.trackTimeMillis ? fmt(t.trackTimeMillis / 1000) : '—'}</span>
-        <a href="${t._url}" target="_blank" onclick="event.stopPropagation()" class="btn-ghost text-[11px]"><i class="fa-solid fa-external-link"></i></a>
-      </div>`;
-    albumTracksEl.insertAdjacentHTML('beforeend', row);
-  });
-}
+                html += `
+                    <div onclick="openPlayerModal('${encodeURIComponent(link)}')" 
+                        class="group relative bg-dark-card border border-dark-border hover:border-brand-500/50 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-500/10 flex flex-col">
+                        <div class="relative w-full aspect-[2/3] bg-dark-border overflow-hidden">
+                            <img src="${img}" alt="${title}" loading="lazy" 
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                onerror="this.src='${PLACEHOLDER}'">
+                            <span class="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] font-bold text-amber-400 border border-amber-400/20">
+                                ${quality}
+                            </span>
+                            <div class="absolute inset-0 bg-brand-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[2px] flex items-center justify-center">
+                                <div class="w-12 h-12 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-lg shadow-brand-600/50 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                                    <svg class="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 flex-grow flex flex-col justify-between space-y-1">
+                            <h3 class="text-xs sm:text-sm font-bold text-white line-clamp-2 group-hover:text-brand-400 transition-colors">${title}</h3>
+                            <p class="text-[11px] font-medium text-slate-400 truncate">${subText}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            contentArea.innerHTML = html;
+        }
 
-function playAlbum() {
-  if (albumTracks.length) {
-    playQueue = albumTracks;
-    loadTrack(albumTracks[0]);
-  }
-}
+        function renderGenreSections(genreObj) {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = '';
 
-function closeAlbumView() {
-  albumView.classList.add('hidden');
-  resultsGrid.classList.remove('hidden');
-}
+            for (const [genreName, movies] of Object.entries(genreObj)) {
+                const section = document.createElement('div');
+                section.className = 'mb-10';
+                
+                section.innerHTML = `
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="w-2 h-6 bg-brand-500 rounded-full"></span>
+                        <h2 class="text-xl font-bold uppercase tracking-wide text-white">${genreName}</h2>
+                    </div>
+                `;
 
-function togglePlayPause() {
-  if (!currentTrackId) {
-    if (songList.length) loadTrack(songList[0]);
-    return;
-  }
-  if (globalAudio.paused) {
-    globalAudio.play().catch(() => {});
-    syncAllIcons();
-  } else {
-    globalAudio.pause();
-    syncAllIcons();
-  }
-}
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6';
 
-function playNext() {
-  if (!playQueue.length) return;
-  const idx = playQueue.findIndex(s => s._id === currentTrackId);
-  let nextIdx;
-  if (isShuffle) {
-    nextIdx = Math.floor(Math.random() * playQueue.length);
-    if (playQueue.length > 1 && nextIdx === idx) nextIdx = (nextIdx + 1) % playQueue.length;
-  } else {
-    nextIdx = idx < 0 ? 0 : (idx + 1) % playQueue.length;
-  }
-  loadTrack(playQueue[nextIdx]);
-}
+                movies.forEach(movie => {
+                    const cardHtml = `
+                        <div onclick="openPlayerModal('${encodeURIComponent(movie.link)}')" 
+                            class="group relative bg-dark-card border border-dark-border hover:border-brand-500/50 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-500/10 flex flex-col">
+                            <div class="relative w-full aspect-[2/3] bg-dark-border overflow-hidden">
+                                <img src="${(movie.image || '').trim()}" alt="${movie.title}" loading="lazy" 
+                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    onerror="this.src='${PLACEHOLDER}'">
+                                <div class="absolute inset-0 bg-brand-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[2px] flex items-center justify-center">
+                                    <div class="w-12 h-12 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-lg shadow-brand-600/50 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                                        <svg class="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-3 flex-grow flex flex-col justify-between space-y-1">
+                                <h3 class="text-xs sm:text-sm font-bold text-white line-clamp-2 group-hover:text-brand-400 transition-colors">${movie.title}</h3>
+                            </div>
+                        </div>
+                    `;
+                    grid.innerHTML += cardHtml;
+                });
 
-function playPrev() {
-  if (!playQueue.length) return;
-  const idx = playQueue.findIndex(s => s._id === currentTrackId);
-  if (idx > 0 && globalAudio.currentTime > 3) {
-    globalAudio.currentTime = 0;
-    return;
-  }
-  const prevIdx = idx <= 0 ? playQueue.length - 1 : idx - 1;
-  loadTrack(playQueue[prevIdx]);
-}
+                section.appendChild(grid);
+                contentArea.appendChild(section);
+            }
+        }
 
-function shuffleMode() {
-  isShuffle = !isShuffle;
-  shuffleBtn.classList.toggle('text-brand-pink', isShuffle);
-  shuffleBtn.classList.toggle('btn-ghost', !isShuffle);
-}
+        async function openPlayerModal(encodedUrl) {
+            const modal = document.getElementById('playerModal');
+            const modalTitle = document.getElementById('modalMovieTitle');
+            const modalSynopsis = document.getElementById('modalSynopsis');
+            const modalPoster = document.getElementById('modalPoster');
+            const modalHeaderPoster = document.getElementById('modalHeaderPoster');
+            const serverTabs = document.getElementById('serverTabs');
+            const iframe = document.getElementById('videoIframe');
 
-function repeatMode() {
-  isRepeat = !isRepeat;
-  repeatBtn.classList.toggle('text-brand-pink', isRepeat);
-  repeatBtn.classList.toggle('btn-ghost', !isRepeat);
-  globalAudio.loop = isRepeat;
-}
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            modalTitle.innerText = "Kino-konek sa download server...";
+            modalSynopsis.innerText = "Kinukuha ang impormasyon ng pelikula...";
+            modalPoster.src = PLACEHOLDER;
+            modalHeaderPoster.src = PLACEHOLDER;
+            modalHeaderPoster.style.display = '';
+            serverTabs.innerHTML = `<span class="text-xs text-slate-500 animate-pulse">Loading servers...</span>`;
+            iframe.src = "";
+            exitFullSize();
 
-function updateUpNext() {
-  const idx = playQueue.findIndex(s => s._id === currentTrackId);
-  const next = playQueue[(idx + 1) % playQueue.length];
-  if (next && idx >= 0) {
-    upNextLabel.textContent = `Up next: ${next._name} · ${next.artistName || ''}`;
-  } else {
-    upNextLabel.textContent = '';
-  }
-}
+            try {
+                const res = await fetch(`${API_BASE}/download?url=${encodedUrl}`);
+                const data = await res.json();
 
-function syncAllIcons() {
-  const playing = currentTrackId !== null && !globalAudio.paused;
-  mainPlayIcon.className = `fa-solid ${playing ? 'fa-pause' : 'fa-play'} text-sm ${playing ? '' : 'translate-x-0.5'}`;
-  document.querySelectorAll('[id^="cardPlayIcon-"]').forEach(icon => {
-    icon.className = 'fa-solid fa-play text-lg translate-x-0.5';
-  });
-  const badge = document.getElementById('nowBadge');
-  if (badge) {
-    if (playing) badge.classList.remove('paused');
-    else badge.classList.add('paused');
-  }
-  if (currentTrackId !== null) {
-    const icon = document.getElementById(`cardPlayIcon-${currentTrackId}`);
-    if (icon) icon.className = `fa-solid ${playing ? 'fa-pause' : 'fa-play'} text-lg ${playing ? '' : 'translate-x-0.5'}`;
-  }
-}
+                if (data.success && data.data) {
+                    const info = data.data;
+                    modalTitle.innerText = info.title || "Movie Player";
+                    modalSynopsis.innerText = info.synopsis || "Walang synopsis na nakita.";
 
-function closePlayer() {
-  globalAudio.pause();
-  currentTrackId = null;
-  playerBar.classList.add('translate-y-full');
-  document.querySelectorAll('.song-card').forEach(c => c.classList.remove('playing'));
-  syncAllIcons();
-}
+                    if (info.poster && info.poster.trim()) {
+                        modalPoster.src = info.poster.trim();
+                        modalHeaderPoster.src = info.poster.trim();
+                    } else {
+                        modalHeaderPoster.style.display = 'none';
+                    }
 
-globalAudio.addEventListener('timeupdate', () => {
-  if (!globalAudio.duration) return;
-  const pct = (globalAudio.currentTime / globalAudio.duration) * 100;
-  progressBar.style.width = `${pct}%`;
-  currentTimeEl.textContent = fmt(globalAudio.currentTime);
-  durationTimeEl.textContent = fmt(globalAudio.duration);
-});
+                    serverTabs.innerHTML = "";
+                    if (info.server && info.server.length > 0) {
+                        info.server.forEach((srv, index) => {
+                            const providerName = Object.keys(srv)[0];
+                            if (providerName === 'domain') return;
 
-globalAudio.addEventListener('play', () => {
-  syncAllIcons();
-  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
-});
+                            const fileId = srv[providerName];
+                            const domain = srv.domain || '.com';
+                            const embedUrl = buildEmbedUrl(providerName, fileId, domain);
 
-globalAudio.addEventListener('pause', () => {
-  syncAllIcons();
-  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
-});
-globalAudio.addEventListener('ended', () => {
-  if (isRepeat) return;
-  progressBar.style.width = '0%';
-  playNext();
-});
+                            const btn = document.createElement('button');
+                            btn.className = `server-btn px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
+                                index === 0 
+                                    ? 'bg-brand-600 border-brand-600 text-white shadow-md shadow-brand-600/30' 
+                                    : 'bg-dark-border/60 border-dark-border text-slate-300 hover:bg-dark-hover hover:text-white'
+                            }`;
+                            btn.innerText = `▶ ${providerName}`;
 
-function seekAudio(e) {
-  if (!globalAudio.duration) return;
-  const rect = progressTrack.getBoundingClientRect();
-  globalAudio.currentTime = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1) * globalAudio.duration;
-}
+                            if (index === 0) {
+                                iframe.src = embedUrl;
+                            }
 
-function fmt(s) {
-  const m = Math.floor(s / 60), sec = Math.floor(s % 60);
-  return `${m}:${sec < 10 ? '0' : ''}${sec}`;
-}
+                            btn.onclick = () => {
+                                document.querySelectorAll('.server-btn').forEach(b => {
+                                    b.className = 'server-btn px-4 py-2 rounded-lg text-xs font-bold transition-all border bg-dark-border/60 border-dark-border text-slate-300 hover:bg-dark-hover hover:text-white';
+                                });
+                                btn.className = 'server-btn px-4 py-2 rounded-lg text-xs font-bold transition-all border bg-brand-600 border-brand-600 text-white shadow-md shadow-brand-600/30';
+                                iframe.src = embedUrl;
+                            };
 
-function esc(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-}
-</script>
+                            serverTabs.appendChild(btn);
+                        });
+                    } else {
+                        serverTabs.innerHTML = `<span class="text-xs text-rose-400">Walang available na streaming server.</span>`;
+                    }
+                } else {
+                    modalTitle.innerText = "Error Loading Movie";
+                    modalSynopsis.innerText = "Hindi ma-parse ang target download link.";
+                }
+            } catch (err) {
+                modalTitle.innerText = "Error Connecting";
+                modalSynopsis.innerText = "Nagka-problema sa pagkuha ng data mula sa server.";
+            }
+        }
+
+        function buildEmbedUrl(name, id, domain) {
+            if (typeof id === 'string' && id.startsWith('http')) {
+                return id.includes('?') ? `${id}&autoplay=1` : `${id}?autoplay=1`;
+            }
+            const provider = name.toLowerCase().replace(/\s+/g, '');
+            let base = "";
+            if (provider.includes('streamhls') || provider.includes('abstream')) {
+                base = `https://${provider}${domain}/e/${id}`;
+            } else if (provider.includes('voe')) {
+                base = `https://voe${domain}/e/${id}`;
+            } else if (provider.includes('playmogo')) {
+                base = `https://playmogo${domain}/e/${id}`;
+            } else {
+                base = `https://${provider}${domain}/e/${id}`;
+            }
+            return `${base}?autoplay=1`;
+        }
+
+        function toggleFullSize() {
+            if (isExpanded) {
+                exitFullSize();
+                return;
+            }
+            isExpanded = true;
+            const wrapper = document.getElementById('playerWrapper');
+            wrapper.classList.add('is-expanded');
+            document.getElementById('expandBtnLabel').innerText = "Exit Full Size";
+            if (wrapper.requestFullscreen) {
+                wrapper.requestFullscreen().catch(() => {});
+            } else if (wrapper.webkitRequestFullscreen) {
+                wrapper.webkitRequestFullscreen();
+            }
+        }
+
+        function exitFullSize() {
+            isExpanded = false;
+            const wrapper = document.getElementById('playerWrapper');
+            wrapper.classList.remove('is-expanded');
+            document.getElementById('expandBtnLabel').innerText = "Full Size";
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(() => {});
+            } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('playerModal');
+            const iframe = document.getElementById('videoIframe');
+            if (isExpanded) {
+                exitFullSize();
+            }
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+            iframe.src = "";
+        }
+
+        function updatePagination(maxPages) {
+            document.getElementById('pageIndicator').innerText = `Page ${currentPage} of ${maxPages}`;
+            document.getElementById('prevBtn').disabled = currentPage <= 1;
+            document.getElementById('nextBtn').disabled = currentPage >= maxPages;
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            fetchPinaySexy();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showError(msg) {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="max-w-md mx-auto text-center py-16 px-4">
+                    <div class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
+                        ⚠️
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Notice</h3>
+                    <p class="text-sm text-slate-400">${msg}</p>
+                </div>
+            `;
+        }
+    </script>
 </body>
 </html>
