@@ -120,9 +120,31 @@
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .adblock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border-radius: 8px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- ANTI-ADS: block all popup attempts from the page itself -->
+    <script>
+        (function () {
+            // Kill window.open entirely; nothing legitimate on this page needs it.
+            window.open = function () { return null; };
+        })();
+    </script>
 
     <header class="sticky top-0 z-40 glass-nav">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
@@ -200,6 +222,9 @@
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                             Now Streaming
                         </span>
+                        <span class="adblock-badge ml-2" title="Popups and forced redirects inside the player are blocked">
+                            🛡️ Ad Block On
+                        </span>
                     </div>
                 </div>
                 <button onclick="closeModal()" class="w-9 h-9 rounded-full bg-dark-border/60 hover:bg-red-500/20 hover:text-red-400 text-slate-400 flex items-center justify-center transition-all duration-200 shrink-0">
@@ -213,11 +238,22 @@
 
                 <div id="playerWrapper" class="relative w-full bg-black rounded-xl border border-dark-border shadow-lg shadow-black/60 overflow-hidden transition-all duration-200">
                     <div class="aspect-video-container">
+                        <!--
+                            ANTI-ADS:
+                            - sandbox WITHOUT "allow-popups", "allow-top-navigation" and
+                              "allow-top-navigation-by-user-activation" => the embed can no longer
+                              open popup tabs or redirect your page to ad links.
+                            - referrerpolicy="no-referrer" + loading="lazy" reduce tracking garbage.
+                            - allow-scripts + allow-same-origin are kept so the video player itself works.
+                        -->
                         <iframe id="videoIframe" 
                             src="" 
                             title="Video Player"
+                            sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"
                             allow="autoplay; fullscreen; picture-in-picture; encrypted-media" 
                             allowfullscreen="true"
+                            referrerpolicy="no-referrer"
+                            loading="lazy"
                             webkitallowfullscreen="true" 
                             mozallowfullscreen="true">
                         </iframe>
