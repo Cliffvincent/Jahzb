@@ -1,694 +1,162 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PinoyMoviePedia — Streaming Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#1e3a8a',
-                        },
-                        dark: {
-                            base: '#070a11',
-                            surface: '#0f172a',
-                            card: '#162032',
-                            border: '#223049',
-                            hover: '#1e2d46'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #070a11;
-            color: #f8fafc;
-        }
-        .glass-nav {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-        }
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #070a11;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #223049;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #3b82f6;
-        }
-        .aspect-video-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-            background: #000;
-        }
-        .aspect-video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        #playerWrapper.is-expanded {
-            position: fixed;
-            inset: 0;
-            z-index: 60;
-            max-width: none;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            border-radius: 0;
-        }
-        #playerWrapper.is-expanded .aspect-video-container {
-            padding-bottom: 0;
-            height: 100%;
-            border-radius: 0;
-        }
-        #playerWrapper.is-expanded #expandBtn {
-            top: 12px;
-            right: 12px;
-        }
-        #expandBtn {
-            z-index: 5;
-        }
-        .fade-in {
-            animation: fadeIn 0.25s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .adblock-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 3px 10px;
-            border-radius: 8px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.35);
-            color: #34d399;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Express Send</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: #222; font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .phone { position: relative; width: 641px; height: 1436px; margin: 0 auto; background: #0057e0; overflow: hidden; color: #fff; }
+    .close { position: absolute; left: 36px; top: 108px; width: 28px; height: 28px; }
+    .close:before, .close:after { content: ""; position: absolute; left: 13px; top: -3px; width: 3px; height: 34px; background: #fff; border-radius: 2px; }
+    .close:before { transform: rotate(45deg); }
+    .close:after { transform: rotate(-45deg); }
+    h1 { position: absolute; top: 104px; left: 0; width: 100%; text-align: center; font-size: 27px; font-weight: 600; letter-spacing: .5px; }
+    .card { position: absolute; left: 32px; top: 278px; width: 577px; height: 896px; background: #fff; border-radius: 26px 26px 0 0; color: #0a2a8f; }
+    .lower { position: absolute; left: 0; top: 511px; width: 100%; height: 385px; background: #f3f7fe; }
+    .check { position: absolute; left: 278px; top: 233px; width: 85px; height: 85px; border-radius: 50%; background: #0a4fd6; border: 5px solid #fff; display: flex; align-items: center; justify-content: center; }
+    .check svg { width: 34px; height: 34px; }
+    .name { position: absolute; top: 92px; width: 100%; text-align: center; font-size: 35px; font-weight: 600; color: #0a3bbf; letter-spacing: 1px; }
+    .phonepill { position: absolute; left: 154px; top: 159px; width: 287px; height: 53px; border-radius: 27px; background: #eaeff8; text-align: center; line-height: 53px; font-size: 30px; color: #1a2f8a; font-weight: 500; }
+    .sentvia { position: absolute; left: 0; top: 223px; width: 100%; text-align: center; font-size: 23px; color: #8d96ac; }
+    .line { position: absolute; left: 36px; width: 505px; height: 2px; background: #c9d1de; }
+    .lbl { position: absolute; left: 36px; font-size: 26px; font-weight: 600; color: #12255e; }
+    .val { position: absolute; right: 36px; font-size: 26px; font-weight: 600; color: #12255e; }
+    .total { position: absolute; right: 36px; top: 420px; font-size: 46px; font-weight: 500; color: #0f2354; }
+    .ref { position: absolute; top: 549px; left: 36px; font-size: 24px; color: #6d7a99; white-space: nowrap; }
+    .ref b { color: #1a2f6e; font-weight: 600; }
+    .date { position: absolute; top: 551px; left: 327px; font-size: 20px; color: #1a2f6e; font-weight: 500; white-space: nowrap; }
+    .eco { position: absolute; left: 36px; top: 681px; width: 505px; height: 162px; background: #9de8c8; border-radius: 10px; border-left: 10px solid #2dbd7f; }
+    .eco .g { position: absolute; left: 84px; top: 34px; font-size: 27px; font-weight: 700; color: #0c7a4a; }
+    .eco .g small { font-size: 15px; font-weight: 600; margin-left: 3px; }
+    .eco p { position: absolute; left: 18px; top: 80px; width: 470px; font-size: 18.5px; line-height: 1.75; color: #0e6a42; font-weight: 500; }
+    .btn { position: absolute; top: 1273px; font-size: 27px; font-weight: 600; display: flex; align-items: center; gap: 14px; color: #fff; cursor: pointer; }
+    .btn svg { width: 36px; height: 36px; }
+    .nav { position: absolute; top: 1376px; width: 100%; height: 36px; }
+    .nav i { position: absolute; display: block; }
+    .menu { left: 148px; top: 6px; width: 24px; height: 22px; border-top: 3px solid #5d7fb0; border-bottom: 3px solid #5d7fb0; }
+    .menu:after { content: ""; position: absolute; left: 0; top: 7px; width: 24px; height: 3px; background: #5d7fb0; }
+    .home { left: 308px; top: 5px; width: 24px; height: 24px; border: 3px solid #5d7fb0; border-radius: 50%; }
+    .back { left: 470px; top: 6px; width: 20px; height: 20px; border: 3px solid #5d7fb0; border-left: none; border-radius: 0 12px 12px 0; transform: scaleX(1); }
+    .status { position: absolute; top: 0; left: 0; width: 100%; height: 60px; color: #dfe8fb; }
+    .status .time { position: absolute; left: 29px; top: 23px; font-size: 20.5px; font-weight: 400; line-height: 26px; letter-spacing: .2px; color: #e3ebfb; }
+    .status .tiny { position: absolute; left: 131px; top: 30px; font-size: 6px; color: #b9c9ee; line-height: 8px; }
+    .status .bell { position: absolute; left: 381px; top: 26px; width: 18px; height: 18px; }
+    .status .t2 { position: absolute; font-size: 11px; font-weight: 700; line-height: 12px; color: #dfe8fb; letter-spacing: -.2px; font-family: Arial, Helvetica, sans-serif; }
+    .status .g4 { font-size: 13px; top: 20px !important; }
+    .status .bars { position: absolute; top: 29px; width: 17px; height: 16px; fill: #dfe8fb; }
+    .status .battery { position: absolute; left: 573px; top: 27px; width: 37px; height: 19px; border: 2px solid #dfe8fb; border-radius: 6px; background: #1f3f8f; display: flex; align-items: center; justify-content: center; }
+    .status .battery span { font-size: 14px; font-weight: 700; color: #fff; font-family: Arial, Helvetica, sans-serif; line-height: 14px; }
+    
+    /* Naayos na CSS zigzag pattern para siguradong maisasama ng html2canvas */
+    .zig {
+      position: absolute;
+      left: 0;
+      top: 884px;
+      width: 577px;
+      height: 12px;
+      background-image: linear-gradient(135deg, #f3f7fe 50%, transparent 50%), linear-gradient(225deg, #f3f7fe 50%, transparent 50%);
+      background-size: 18px 12px;
+      background-repeat: repeat-x;
+    }
+
+    [contenteditable="true"] { outline: none; cursor: text; border-radius: 4px; transition: background 0.15s; }
+    [contenteditable="true"]:hover, [contenteditable="true"]:focus { background: rgba(10, 79, 214, 0.12); }
+    .status [contenteditable="true"]:hover, .status [contenteditable="true"]:focus { background: rgba(255, 255, 255, 0.2); }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
-
-    <!-- ANTI-ADS: block all popup attempts from the page itself -->
-    <script>
-        (function () {
-            // Kill window.open entirely; nothing legitimate on this page needs it.
-            window.open = function () { return null; };
-        })();
-    </script>
-
-    <header class="sticky top-0 z-40 glass-nav">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3 cursor-pointer shrink-0" onclick="switchCategory('pinay-sexy')">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-brand-500/30">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-                <div>
-                    <span class="text-xl font-black tracking-tight text-white">PINOY<span class="text-brand-500">MOVIE</span></span>
-                    <span class="block text-[10px] font-semibold tracking-widest text-brand-400 uppercase -mt-1">Pedia HD</span>
-                </div>
-            </div>
-            <nav class="flex items-center gap-2 overflow-x-auto py-2 no-scrollbar">
-                <button id="nav-pinay-sexy" onclick="switchCategory('pinay-sexy')" 
-                    class="nav-tab px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-dark-card whitespace-nowrap">
-                    🔥 Pinay Sexy
-                </button>
-                <button id="nav-release" onclick="switchCategory('release')" 
-                    class="nav-tab px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-dark-card whitespace-nowrap">
-                    📅 Year Releases
-                </button>
-                <button id="nav-genre" onclick="switchCategory('genre')" 
-                    class="nav-tab px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-dark-card whitespace-nowrap">
-                    🎭 Genres
-                </button>
-            </nav>
-        </div>
-    </header>
-
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <div class="min-w-0">
-                <h1 id="categoryTitle" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white truncate">Pinay Sexy Movies</h1>
-                <p id="categoryDesc" class="text-sm text-slate-400 mt-1 truncate">Browse trending pinay sexy adult title collections.</p>
-            </div>
-            <div id="yearSelectorContainer" class="hidden md:pl-4">
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 md:hidden">Select Release Year</label>
-                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar" id="yearPills"></div>
-            </div>
-        </div>
-
-        <div id="contentArea"></div>
-
-        <div id="paginationBar" class="hidden mt-12 flex justify-center items-center gap-3">
-            <button id="prevBtn" onclick="changePage(-1)" class="px-5 py-2.5 rounded-xl bg-dark-card border border-dark-border text-slate-300 text-sm font-semibold hover:bg-brand-600 hover:text-white hover:border-brand-600 disabled:opacity-40 disabled:pointer-events-none transition-all duration-200">
-                ← Previous Page
-            </button>
-            <span id="pageIndicator" class="px-4 py-2 rounded-xl bg-dark-card text-xs font-bold text-slate-400 border border-dark-border">
-                Page 1
-            </span>
-            <button id="nextBtn" onclick="changePage(1)" class="px-5 py-2.5 rounded-xl bg-dark-card border border-dark-border text-slate-300 text-sm font-semibold hover:bg-brand-600 hover:text-white hover:border-brand-600 disabled:opacity-40 disabled:pointer-events-none transition-all duration-200">
-                Next Page →
-            </button>
-        </div>
-    </main>
-
-    <footer class="border-t border-dark-border/50 py-6 bg-dark-base text-center">
-        <p class="text-xs text-slate-500 font-medium">© 2026 PinoyMoviePedia Portal. All rights reserved.</p>
-    </footer>
-
-    <div id="playerModal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-xl items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
-        <div class="relative w-full max-w-5xl bg-dark-surface border border-dark-border rounded-2xl shadow-2xl overflow-hidden my-auto flex flex-col fade-in">
-
-            <div class="flex items-center justify-between gap-3 px-4 sm:px-6 py-3.5 border-b border-dark-border bg-gradient-to-r from-dark-card to-dark-surface">
-                <div class="flex items-center gap-3 min-w-0 flex-1">
-                    <div class="w-9 h-13 aspect-[2/3] rounded-md overflow-hidden bg-dark-border shrink-0 shadow-md">
-                        <img id="modalHeaderPoster" src="" alt="Poster" class="w-full h-full object-cover" onerror="this.style.display='none'">
-                    </div>
-                    <div class="min-w-0">
-                        <h2 id="modalMovieTitle" class="text-base sm:text-lg font-bold text-white truncate">Loading Movie...</h2>
-                        <span id="modalLiveBadge" class="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            Now Streaming
-                        </span>
-                        <span class="adblock-badge ml-2" title="Popups and forced redirects inside the player are blocked">
-                            🛡️ Ad Block On
-                        </span>
-                    </div>
-                </div>
-                <button onclick="closeModal()" class="w-9 h-9 rounded-full bg-dark-border/60 hover:bg-red-500/20 hover:text-red-400 text-slate-400 flex items-center justify-center transition-all duration-200 shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="p-4 sm:p-6 space-y-6 max-h-[80vh] overflow-y-auto">
-
-                <div id="playerWrapper" class="relative w-full bg-black rounded-xl border border-dark-border shadow-lg shadow-black/60 overflow-hidden transition-all duration-200">
-                    <div class="aspect-video-container">
-                        <!--
-                            ANTI-ADS:
-                            - sandbox WITHOUT "allow-popups", "allow-top-navigation" and
-                              "allow-top-navigation-by-user-activation" => the embed can no longer
-                              open popup tabs or redirect your page to ad links.
-                            - referrerpolicy="no-referrer" + loading="lazy" reduce tracking garbage.
-                            - allow-scripts + allow-same-origin are kept so the video player itself works.
-                        -->
-                        <iframe id="videoIframe" 
-                            src="" 
-                            title="Video Player"
-                            sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"
-                            allow="autoplay; fullscreen; picture-in-picture; encrypted-media" 
-                            allowfullscreen="true"
-                            referrerpolicy="no-referrer"
-                            loading="lazy"
-                            webkitallowfullscreen="true" 
-                            mozallowfullscreen="true">
-                        </iframe>
-                    </div>
-                    <button id="expandBtn" onclick="toggleFullSize()" 
-                        class="absolute top-2 right-2 px-3 py-1.5 rounded-lg bg-black/70 hover:bg-brand-600 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-md border border-white/10 transition-all duration-200">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-                        </svg>
-                        <span id="expandBtnLabel">Full Size</span>
-                    </button>
-                </div>
-
-                <div class="space-y-2">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Available Video Servers:</span>
-                    <div id="serverTabs" class="flex flex-wrap gap-2"></div>
-                </div>
-
-                <div class="flex flex-col md:flex-row gap-6 p-4 rounded-xl bg-gradient-to-br from-dark-card to-dark-surface border border-dark-border/80">
-                    <div class="w-40 sm:w-48 mx-auto md:mx-0 shrink-0">
-                        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-dark-border relative shadow-lg">
-                            <img id="modalPoster" src="" alt="Poster" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300x450/162032/60a5fa?text=No+Poster'">
-                        </div>
-                    </div>
-                    <div class="flex-grow space-y-3 min-w-0">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="px-2.5 py-1 rounded-md bg-brand-500/20 border border-brand-500/30 text-brand-400 text-xs font-bold">HD Quality</span>
-                            <span class="px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium">PinoyMoviePedia Player</span>
-                        </div>
-                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-300">Synopsis</h3>
-                        <p id="modalSynopsis" class="text-sm text-slate-400 leading-relaxed max-h-48 overflow-y-auto pr-2">
-                            Fetching movie overview...
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<body>
+  <div class="phone" id="phone">
+    <div class="status">
+      <div class="time" id="statusTime" contenteditable="true">12:09 AM</div>
+      <div class="tiny">GCash</div>
+      <svg class="bell" viewBox="0 0 20 20" fill="#dfe8fb">
+        <path d="M10 2a1 1 0 0 1 1 1v.6A5 5 0 0 1 15 8.5V12l1.8 2.4v.6H3.2v-.6L5 12V8.5q0-.9.3-1.7L2.5 4l1.2-1.2 13.8 13.8-1.2 1.2-2-2H8.2a2 2 0 0 0 3.6 0h1.6z" transform="scale(.95)"/>
+      </svg>
+      <div class="t2" style="left:407px;top:22px">46.8<br>K/S</div>
+      <div class="t2" style="left:441px;top:22px">Vo<br>LTE</div>
+      <div class="t2 g4" style="left:467px;top:22px">4G</div>
+      <svg class="bars" style="left:484px" viewBox="0 0 17 16"><rect x="0" y="11" width="3" height="5" rx=".5"/><rect x="4.5" y="7.5" width="3" height="8.5" rx=".5"/><rect x="9" y="4" width="3" height="12" rx=".5"/><rect x="13.5" y="0" width="3" height="16" rx=".5"/></svg>
+      <div class="t2" style="left:508px;top:22px">Vo<br>LTE</div>
+      <div class="t2 g4" style="left:533px;top:22px">4G</div>
+      <svg class="bars" style="left:552px" viewBox="0 0 17 16"><rect x="0" y="11" width="3" height="5" rx=".5"/><rect x="4.5" y="7.5" width="3" height="8.5" rx=".5"/><rect x="9" y="4" width="3" height="12" rx=".5"/><rect x="13.5" y="0" width="3" height="16" rx=".5"/></svg>
+      <div class="battery"><span id="batteryVal" contenteditable="true">88</span></div>
     </div>
-
-    <script>
-        const API_BASE = "https://betadash-api-swordslush-production.up.railway.app/pinoymoviepedia";
-        const PLACEHOLDER = "https://via.placeholder.com/300x450/162032/60a5fa?text=No+Poster";
-
-        let currentCategory = 'pinay-sexy';
-        let currentPage = 1;
-        let selectedYear = 2026;
-        let isExpanded = false;
-
-        window.addEventListener('DOMContentLoaded', () => {
-            initYearSelector();
-            switchCategory('pinay-sexy');
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (isExpanded) {
-                    exitFullSize();
-                } else {
-                    closeModal();
-                }
-            }
-        });
-
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement && isExpanded) {
-                exitFullSize();
-            }
-        });
-
-        function initYearSelector() {
-            const container = document.getElementById('yearPills');
-            container.innerHTML = '';
-            for (let year = 2026; year >= 2020; year--) {
-                const btn = document.createElement('button');
-                btn.id = `year-btn-${year}`;
-                btn.className = `px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 border whitespace-nowrap ${
-                    year === selectedYear 
-                        ? 'bg-brand-600 border-brand-600 text-white shadow-md shadow-brand-600/30' 
-                        : 'bg-dark-card border-dark-border text-slate-400 hover:text-white hover:bg-dark-hover'
-                }`;
-                btn.innerText = year;
-                btn.onclick = () => selectYear(year);
-                container.appendChild(btn);
-            }
+    <div class="close"></div>
+    <h1>Express Send</h1>
+    <div class="card">
+      <div class="name" id="nameField" contenteditable="true">AN••L NI•O I.</div>
+      <div class="phonepill">+63 <span id="phoneField" contenteditable="true">969 5382706</span></div>
+      <div class="sentvia" contenteditable="true">Sent via GCash</div>
+      <div class="line" style="top:290px"></div>
+      <div class="lbl" style="top:322px">Amount</div>
+      <div class="val" id="amountField" style="top:322px" contenteditable="true">100.00</div>
+      <div class="line" style="top:385px"></div>
+      <div class="lbl" style="top:434px">Total Amount Sent</div>
+      <div class="total">₱<span id="totalField" contenteditable="true">100.00</span></div>
+      <div class="lower"></div>
+      <div class="ref">Ref No. <b id="refField" contenteditable="true">1234 567 890123</b></div>
+      <div class="date" id="dateField" contenteditable="true">Nov 14, 2026 12:09 AM</div>
+      <div class="eco">
+        <img src="https://i.imgur.com/qYKVHmO.png" style="position:absolute;left:22px;top:28px;width:42px;height:42px;object-fit:contain;" crossorigin="anonymous" />
+        <div class="g">279g<small>(gCO2e)</small></div>
+        <p>By going digital, you reduce your carbon footprint from transportation, paper, and plastic.</p>
+      </div>
+      <div class="zig"></div>
+    </div>
+    <div class="check">
+      <svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18l8 8 15-16"/></svg>
+    </div>
+    <div class="btn" style="left:122px" id="downloadBtn">
+      <svg viewBox="0 0 36 36" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="30" height="30" rx="7"/><path d="M18 9v13M12 17l6 6 6-6M11 28h14"/></svg>Download
+    </div>
+    <div class="btn" style="left:397px" id="shareBtn">
+      <svg viewBox="0 0 36 36" fill="none" stroke="#fff" stroke-width="3"><circle cx="9" cy="18" r="5"/><circle cx="26" cy="8" r="5"/><circle cx="26" cy="28" r="5"/><path d="M13 15l9-5M13 21l9 5"/></svg>Share
+    </div>
+    <div class="nav"><i class="menu"></i><i class="home"></i><i class="back"></i></div>
+  </div>
+  <script>
+    (function initDefaults() {
+      const g = (n) => Array.from({ length: n }, () => Math.floor(Math.random() * 10)).join("");
+      document.getElementById("refField").textContent = `${g(4)} ${g(3)} ${g(6)}`;
+      document.getElementById("batteryVal").textContent = Math.floor(Math.random() * (99 - 75 + 1)) + 75;
+      const now = new Date();
+      const dateStr = new Intl.DateTimeFormat("en-PH", { month: "short", day: "2-digit", year: "numeric", timeZone: "Asia/Manila" }).format(now);
+      const timeStr = new Intl.DateTimeFormat("en-PH", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "Asia/Manila" }).format(now).replace(/\u202f/g, " ");
+      document.getElementById("statusTime").textContent = timeStr;
+      document.getElementById("dateField").textContent = `${dateStr} ${timeStr}`;
+    })();
+    const amountField = document.getElementById("amountField");
+    const totalField = document.getElementById("totalField");
+    amountField.addEventListener("input", () => { totalField.textContent = amountField.textContent; });
+    totalField.addEventListener("input", () => { amountField.textContent = totalField.textContent; });
+    async function renderPhone() {
+      if (document.activeElement) document.activeElement.blur();
+      return await html2canvas(document.getElementById("phone"), { scale: 2, useCORS: true, backgroundColor: "#0057e0", logging: false });
+    }
+    document.getElementById("downloadBtn").addEventListener("click", async function () {
+      const canvas = await renderPhone();
+      const link = document.createElement("a");
+      link.download = "gcash-express-send.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+    document.getElementById("shareBtn").addEventListener("click", async function () {
+      const canvas = await renderPhone();
+      canvas.toBlob(async function (blob) {
+        const file = new File([blob], "gcash-express-send.png", { type: "image/png" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: "Express Send" });
+        } else {
+          const link = document.createElement("a");
+          link.download = "gcash-express-send.png";
+          link.href = canvas.toDataURL("image/png");
+          link.click();
         }
-
-        function selectYear(year) {
-            selectedYear = year;
-            initYearSelector();
-            fetchReleases();
-        }
-
-        function switchCategory(category) {
-            currentCategory = category;
-            currentPage = 1;
-
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('bg-brand-600', 'text-white', 'shadow-lg', 'shadow-brand-600/30');
-                tab.classList.add('text-slate-300');
-            });
-            const activeTab = document.getElementById(`nav-${category}`);
-            if (activeTab) {
-                activeTab.classList.add('bg-brand-600', 'text-white', 'shadow-lg', 'shadow-brand-600/30');
-                activeTab.classList.remove('text-slate-300');
-            }
-
-            const yearContainer = document.getElementById('yearSelectorContainer');
-            const categoryTitle = document.getElementById('categoryTitle');
-            const categoryDesc = document.getElementById('categoryDesc');
-            const paginationBar = document.getElementById('paginationBar');
-
-            if (category === 'pinay-sexy') {
-                yearContainer.classList.add('hidden');
-                categoryTitle.innerText = "Pinay Sexy Movies";
-                categoryDesc.innerText = "Collection of local sexy, adult, and VMX cinema releases.";
-                paginationBar.classList.remove('hidden');
-                fetchPinaySexy();
-            } else if (category === 'release') {
-                yearContainer.classList.remove('hidden');
-                categoryTitle.innerText = "Year Releases";
-                categoryDesc.innerText = `Browse movies released specifically in the year ${selectedYear}.`;
-                paginationBar.classList.add('hidden');
-                fetchReleases();
-            } else if (category === 'genre') {
-                yearContainer.classList.add('hidden');
-                categoryTitle.innerText = "Movie Genres";
-                categoryDesc.innerText = "Browse top movies categorized by Comedy, Action, and Romance.";
-                paginationBar.classList.add('hidden');
-                fetchGenres();
-            }
-        }
-
-        function showSkeletons() {
-            const contentArea = document.getElementById('contentArea');
-            let skeletons = `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">`;
-            for (let i = 0; i < 10; i++) {
-                skeletons += `
-                    <div class="bg-dark-card border border-dark-border rounded-xl overflow-hidden animate-pulse">
-                        <div class="w-full aspect-[2/3] bg-dark-border/60"></div>
-                        <div class="p-3 space-y-2">
-                            <div class="h-4 bg-dark-border/80 rounded w-3/4"></div>
-                            <div class="h-3 bg-dark-border/50 rounded w-1/2"></div>
-                        </div>
-                    </div>
-                `;
-            }
-            skeletons += `</div>`;
-            contentArea.innerHTML = skeletons;
-        }
-
-        async function fetchPinaySexy() {
-            showSkeletons();
-            try {
-                const res = await fetch(`${API_BASE}/pinay-sexy?page=${currentPage}`);
-                const data = await res.json();
-                renderMovieGrid(data.results || []);
-                updatePagination(19);
-            } catch (err) {
-                showError("Hindi ma-fetch ang Pinay Sexy movies.");
-            }
-        }
-
-        async function fetchReleases() {
-            showSkeletons();
-            try {
-                const res = await fetch(`${API_BASE}/release?year=${selectedYear}`);
-                const data = await res.json();
-                renderMovieGrid(data.results || []);
-            } catch (err) {
-                showError(`Hindi ma-load ang releases para sa taong ${selectedYear}.`);
-            }
-        }
-
-        async function fetchGenres() {
-            showSkeletons();
-            try {
-                const res = await fetch(`${API_BASE}/genre?page=${currentPage}`);
-                const data = await res.json();
-                renderGenreSections(data.results || {});
-            } catch (err) {
-                showError("Nagkaroon ng problema sa pag-load ng mga Genres.");
-            }
-        }
-
-        function renderMovieGrid(movies) {
-            const contentArea = document.getElementById('contentArea');
-            if (!movies || movies.length === 0) {
-                contentArea.innerHTML = `<div class="text-center py-16 text-slate-400">Walang nahanap na pelikula.</div>`;
-                return;
-            }
-
-            let html = `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">`;
-            movies.forEach(movie => {
-                const img = (movie.img || movie.image || '').trim();
-                const title = movie.title || 'Untitled';
-                const link = movie.link || '';
-                const quality = movie.quality || 'HD';
-                const subText = movie.releaseDate || (movie.genres ? movie.genres.join(', ') : 'Pinoy Movie');
-
-                html += `
-                    <div onclick="openPlayerModal('${encodeURIComponent(link)}')" 
-                        class="group relative bg-dark-card border border-dark-border hover:border-brand-500/50 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-500/10 flex flex-col">
-                        <div class="relative w-full aspect-[2/3] bg-dark-border overflow-hidden">
-                            <img src="${img}" alt="${title}" loading="lazy" 
-                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                onerror="this.src='${PLACEHOLDER}'">
-                            <span class="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] font-bold text-amber-400 border border-amber-400/20">
-                                ${quality}
-                            </span>
-                            <div class="absolute inset-0 bg-brand-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[2px] flex items-center justify-center">
-                                <div class="w-12 h-12 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-lg shadow-brand-600/50 transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                                    <svg class="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-3 flex-grow flex flex-col justify-between space-y-1">
-                            <h3 class="text-xs sm:text-sm font-bold text-white line-clamp-2 group-hover:text-brand-400 transition-colors">${title}</h3>
-                            <p class="text-[11px] font-medium text-slate-400 truncate">${subText}</p>
-                        </div>
-                    </div>
-                `;
-            });
-            html += `</div>`;
-            contentArea.innerHTML = html;
-        }
-
-        function renderGenreSections(genreObj) {
-            const contentArea = document.getElementById('contentArea');
-            contentArea.innerHTML = '';
-
-            for (const [genreName, movies] of Object.entries(genreObj)) {
-                const section = document.createElement('div');
-                section.className = 'mb-10';
-                
-                section.innerHTML = `
-                    <div class="flex items-center gap-3 mb-4">
-                        <span class="w-2 h-6 bg-brand-500 rounded-full"></span>
-                        <h2 class="text-xl font-bold uppercase tracking-wide text-white">${genreName}</h2>
-                    </div>
-                `;
-
-                const grid = document.createElement('div');
-                grid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6';
-
-                movies.forEach(movie => {
-                    const cardHtml = `
-                        <div onclick="openPlayerModal('${encodeURIComponent(movie.link)}')" 
-                            class="group relative bg-dark-card border border-dark-border hover:border-brand-500/50 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-500/10 flex flex-col">
-                            <div class="relative w-full aspect-[2/3] bg-dark-border overflow-hidden">
-                                <img src="${(movie.image || '').trim()}" alt="${movie.title}" loading="lazy" 
-                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                    onerror="this.src='${PLACEHOLDER}'">
-                                <div class="absolute inset-0 bg-brand-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[2px] flex items-center justify-center">
-                                    <div class="w-12 h-12 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-lg shadow-brand-600/50 transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                                        <svg class="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-3 flex-grow flex flex-col justify-between space-y-1">
-                                <h3 class="text-xs sm:text-sm font-bold text-white line-clamp-2 group-hover:text-brand-400 transition-colors">${movie.title}</h3>
-                            </div>
-                        </div>
-                    `;
-                    grid.innerHTML += cardHtml;
-                });
-
-                section.appendChild(grid);
-                contentArea.appendChild(section);
-            }
-        }
-
-        async function openPlayerModal(encodedUrl) {
-            const modal = document.getElementById('playerModal');
-            const modalTitle = document.getElementById('modalMovieTitle');
-            const modalSynopsis = document.getElementById('modalSynopsis');
-            const modalPoster = document.getElementById('modalPoster');
-            const modalHeaderPoster = document.getElementById('modalHeaderPoster');
-            const serverTabs = document.getElementById('serverTabs');
-            const iframe = document.getElementById('videoIframe');
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            document.body.style.overflow = 'hidden';
-            modalTitle.innerText = "Kino-konek sa download server...";
-            modalSynopsis.innerText = "Kinukuha ang impormasyon ng pelikula...";
-            modalPoster.src = PLACEHOLDER;
-            modalHeaderPoster.src = PLACEHOLDER;
-            modalHeaderPoster.style.display = '';
-            serverTabs.innerHTML = `<span class="text-xs text-slate-500 animate-pulse">Loading servers...</span>`;
-            iframe.src = "";
-            exitFullSize();
-
-            try {
-                const res = await fetch(`${API_BASE}/download?url=${encodedUrl}`);
-                const data = await res.json();
-
-                if (data.success && data.data) {
-                    const info = data.data;
-                    modalTitle.innerText = info.title || "Movie Player";
-                    modalSynopsis.innerText = info.synopsis || "Walang synopsis na nakita.";
-
-                    if (info.poster && info.poster.trim()) {
-                        modalPoster.src = info.poster.trim();
-                        modalHeaderPoster.src = info.poster.trim();
-                    } else {
-                        modalHeaderPoster.style.display = 'none';
-                    }
-
-                    serverTabs.innerHTML = "";
-                    if (info.server && info.server.length > 0) {
-                        info.server.forEach((srv, index) => {
-                            const providerName = Object.keys(srv)[0];
-                            if (providerName === 'domain') return;
-
-                            const fileId = srv[providerName];
-                            const domain = srv.domain || '.com';
-                            const embedUrl = buildEmbedUrl(providerName, fileId, domain);
-
-                            const btn = document.createElement('button');
-                            btn.className = `server-btn px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
-                                index === 0 
-                                    ? 'bg-brand-600 border-brand-600 text-white shadow-md shadow-brand-600/30' 
-                                    : 'bg-dark-border/60 border-dark-border text-slate-300 hover:bg-dark-hover hover:text-white'
-                            }`;
-                            btn.innerText = `▶ ${providerName}`;
-
-                            if (index === 0) {
-                                iframe.src = embedUrl;
-                            }
-
-                            btn.onclick = () => {
-                                document.querySelectorAll('.server-btn').forEach(b => {
-                                    b.className = 'server-btn px-4 py-2 rounded-lg text-xs font-bold transition-all border bg-dark-border/60 border-dark-border text-slate-300 hover:bg-dark-hover hover:text-white';
-                                });
-                                btn.className = 'server-btn px-4 py-2 rounded-lg text-xs font-bold transition-all border bg-brand-600 border-brand-600 text-white shadow-md shadow-brand-600/30';
-                                iframe.src = embedUrl;
-                            };
-
-                            serverTabs.appendChild(btn);
-                        });
-                    } else {
-                        serverTabs.innerHTML = `<span class="text-xs text-rose-400">Walang available na streaming server.</span>`;
-                    }
-                } else {
-                    modalTitle.innerText = "Error Loading Movie";
-                    modalSynopsis.innerText = "Hindi ma-parse ang target download link.";
-                }
-            } catch (err) {
-                modalTitle.innerText = "Error Connecting";
-                modalSynopsis.innerText = "Nagka-problema sa pagkuha ng data mula sa server.";
-            }
-        }
-
-        function buildEmbedUrl(name, id, domain) {
-            if (typeof id === 'string' && id.startsWith('http')) {
-                return id.includes('?') ? `${id}&autoplay=1` : `${id}?autoplay=1`;
-            }
-            const provider = name.toLowerCase().replace(/\s+/g, '');
-            let base = "";
-            if (provider.includes('streamhls') || provider.includes('abstream')) {
-                base = `https://${provider}${domain}/e/${id}`;
-            } else if (provider.includes('voe')) {
-                base = `https://voe${domain}/e/${id}`;
-            } else if (provider.includes('playmogo')) {
-                base = `https://playmogo${domain}/e/${id}`;
-            } else {
-                base = `https://${provider}${domain}/e/${id}`;
-            }
-            return `${base}?autoplay=1`;
-        }
-
-        function toggleFullSize() {
-            if (isExpanded) {
-                exitFullSize();
-                return;
-            }
-            isExpanded = true;
-            const wrapper = document.getElementById('playerWrapper');
-            wrapper.classList.add('is-expanded');
-            document.getElementById('expandBtnLabel').innerText = "Exit Full Size";
-            if (wrapper.requestFullscreen) {
-                wrapper.requestFullscreen().catch(() => {});
-            } else if (wrapper.webkitRequestFullscreen) {
-                wrapper.webkitRequestFullscreen();
-            }
-        }
-
-        function exitFullSize() {
-            isExpanded = false;
-            const wrapper = document.getElementById('playerWrapper');
-            wrapper.classList.remove('is-expanded');
-            document.getElementById('expandBtnLabel').innerText = "Full Size";
-            if (document.fullscreenElement) {
-                document.exitFullscreen().catch(() => {});
-            } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            }
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('playerModal');
-            const iframe = document.getElementById('videoIframe');
-            if (isExpanded) {
-                exitFullSize();
-            }
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            document.body.style.overflow = 'auto';
-            iframe.src = "";
-        }
-
-        function updatePagination(maxPages) {
-            document.getElementById('pageIndicator').innerText = `Page ${currentPage} of ${maxPages}`;
-            document.getElementById('prevBtn').disabled = currentPage <= 1;
-            document.getElementById('nextBtn').disabled = currentPage >= maxPages;
-        }
-
-        function changePage(delta) {
-            currentPage += delta;
-            fetchPinaySexy();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showError(msg) {
-            const contentArea = document.getElementById('contentArea');
-            contentArea.innerHTML = `
-                <div class="max-w-md mx-auto text-center py-16 px-4">
-                    <div class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
-                        ⚠️
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">Notice</h3>
-                    <p class="text-sm text-slate-400">${msg}</p>
-                </div>
-            `;
-        }
-    </script>
+      }, "image/png");
+    });
+  </script>
 </body>
 </html>
