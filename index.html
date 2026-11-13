@@ -20,7 +20,7 @@
     .check svg { width: 34px; height: 34px; }
     .name { position: absolute; top: 92px; width: 100%; text-align: center; font-size: 35px; font-weight: 600; color: #0a3bbf; letter-spacing: 1px; }
     .phonepill { position: absolute; left: 154px; top: 159px; width: 287px; height: 53px; border-radius: 27px; background: #eaeff8; text-align: center; line-height: 53px; font-size: 30px; color: #1a2f8a; font-weight: 500; }
-    .sentvia { position: absolute; left: 0; top: 223px; width: 100%; text-align: center; font-size: 23px; color: #8d96ac; }
+    .sentvia { position: absolute; left: 203px; top: 223px; font-size: 23px; color: #8d96ac; }
     .line { position: absolute; left: 36px; width: 505px; height: 2px; background: #c9d1de; }
     .lbl { position: absolute; left: 36px; font-size: 26px; font-weight: 600; color: #12255e; }
     .val { position: absolute; right: 36px; font-size: 26px; font-weight: 600; color: #12255e; }
@@ -49,22 +49,23 @@
     .status .bars { position: absolute; top: 29px; width: 17px; height: 16px; fill: #dfe8fb; }
     .status .battery { position: absolute; left: 573px; top: 27px; width: 37px; height: 19px; border: 2px solid #dfe8fb; border-radius: 6px; background: #1f3f8f; display: flex; align-items: center; justify-content: center; }
     .status .battery span { font-size: 14px; font-weight: 700; color: #fff; font-family: Arial, Helvetica, sans-serif; line-height: 14px; }
-    
-    /* Naayos na CSS zigzag pattern para siguradong maisasama ng html2canvas */
-    .zig {
-      position: absolute;
-      left: 0;
-      top: 884px;
-      width: 577px;
-      height: 12px;
-      background-image: linear-gradient(135deg, #f3f7fe 50%, transparent 50%), linear-gradient(225deg, #f3f7fe 50%, transparent 50%);
-      background-size: 18px 12px;
-      background-repeat: repeat-x;
-    }
+    .zig { position: absolute; left: 0; top: 100%; width: 577px; height: 12px; display: block; margin-top: -1px; overflow: hidden; }
 
-    [contenteditable="true"] { outline: none; cursor: text; border-radius: 4px; transition: background 0.15s; }
-    [contenteditable="true"]:hover, [contenteditable="true"]:focus { background: rgba(10, 79, 214, 0.12); }
-    .status [contenteditable="true"]:hover, .status [contenteditable="true"]:focus { background: rgba(255, 255, 255, 0.2); }
+    /* Editable highlight styles */
+    [contenteditable="true"] {
+      outline: none;
+      cursor: text;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    [contenteditable="true"]:hover,
+    [contenteditable="true"]:focus {
+      background: rgba(10, 79, 214, 0.12);
+    }
+    .status [contenteditable="true"]:hover,
+    .status [contenteditable="true"]:focus {
+      background: rgba(255, 255, 255, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -84,58 +85,104 @@
       <svg class="bars" style="left:552px" viewBox="0 0 17 16"><rect x="0" y="11" width="3" height="5" rx=".5"/><rect x="4.5" y="7.5" width="3" height="8.5" rx=".5"/><rect x="9" y="4" width="3" height="12" rx=".5"/><rect x="13.5" y="0" width="3" height="16" rx=".5"/></svg>
       <div class="battery"><span id="batteryVal" contenteditable="true">88</span></div>
     </div>
+
     <div class="close"></div>
     <h1>Express Send</h1>
+
     <div class="card">
+      <!-- Editable Name -->
       <div class="name" id="nameField" contenteditable="true">AN••L NI•O I.</div>
+
+      <!-- Editable Number -->
       <div class="phonepill">+63 <span id="phoneField" contenteditable="true">969 5382706</span></div>
-      <div class="sentvia" contenteditable="true">Sent via GCash</div>
+
+      <div class="sentvia">Sent via GCash</div>
       <div class="line" style="top:290px"></div>
+
+      <!-- Editable Amount (auto-syncs with Total Amount Sent) -->
       <div class="lbl" style="top:322px">Amount</div>
       <div class="val" id="amountField" style="top:322px" contenteditable="true">100.00</div>
+
       <div class="line" style="top:385px"></div>
+
       <div class="lbl" style="top:434px">Total Amount Sent</div>
       <div class="total">₱<span id="totalField" contenteditable="true">100.00</span></div>
+
       <div class="lower"></div>
+
+      <!-- Editable Ref No. -->
       <div class="ref">Ref No. <b id="refField" contenteditable="true">1234 567 890123</b></div>
+
+      <!-- Editable Date & Time -->
       <div class="date" id="dateField" contenteditable="true">Nov 14, 2026 12:09 AM</div>
+
       <div class="eco">
         <img src="https://i.imgur.com/qYKVHmO.png" style="position:absolute;left:22px;top:28px;width:42px;height:42px;object-fit:contain;" crossorigin="anonymous" />
         <div class="g">279g<small>(gCO2e)</small></div>
         <p>By going digital, you reduce your carbon footprint from transportation, paper, and plastic.</p>
       </div>
-      <div class="zig"></div>
+
+      <svg class="zig" viewBox="0 -1 577 12" preserveAspectRatio="none">
+        <path d="M-5 -1 L-5 0 L-15.28 0.00 L-11.70 0.00 L-2.74 10.75 L0.85 10.75 L9.81 0.00 L13.39 0.00 L22.35 10.75 L25.94 10.75 L34.90 0.00 L38.48 0.00 L47.44 10.75 L51.03 10.75 L59.99 0.00 L63.57 0.00 L72.53 10.75 L76.12 10.75 L85.08 0.00 L88.66 0.00 L97.62 10.75 L101.21 10.75 L110.17 0.00 L113.75 0.00 L122.71 10.75 L126.30 10.75 L135.26 0.00 L138.84 0.00 L147.80 10.75 L151.38 10.75 L160.35 0.00 L163.93 0.00 L172.89 10.75 L176.47 10.75 L185.44 0.00 L189.02 0.00 L197.98 10.75 L201.56 10.75 L210.52 0.00 L214.11 0.00 L223.07 10.75 L226.65 10.75 L235.61 0.00 L239.20 0.00 L248.16 10.75 L251.74 10.75 L260.70 0.00 L264.29 0.00 L273.25 10.75 L276.83 10.75 L285.79 0.00 L289.38 0.00 L298.34 10.75 L301.92 10.75 L310.88 0.00 L314.47 0.00 L323.43 10.75 L327.01 10.75 L335.97 0.00 L339.56 0.00 L348.52 10.75 L352.10 10.75 L361.06 0.00 L364.65 0.00 L373.61 10.75 L377.19 10.75 L386.15 0.00 L389.74 0.00 L398.70 10.75 L402.28 10.75 L411.24 0.00 L414.83 0.00 L423.79 10.75 L427.37 10.75 L436.33 0.00 L439.92 0.00 L448.88 10.75 L452.46 10.75 L461.42 0.00 L465.01 0.00 L473.97 10.75 L477.55 10.75 L486.51 0.00 L490.09 0.00 L499.06 10.75 L502.64 10.75 L511.60 0.00 L515.18 0.00 L524.14 10.75 L527.73 10.75 L536.69 0.00 L540.27 0.00 L549.23 10.75 L552.82 10.75 L561.78 0.00 L565.36 0.00 L574.32 10.75 L577.91 10.75 L586.87 0.00 L590.45 0.00 L599.41 10.75 L603.00 10.75 L602.09 -1 Z" fill="#f3f7fe"/>
+      </svg>
     </div>
+
     <div class="check">
       <svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18l8 8 15-16"/></svg>
     </div>
+
     <div class="btn" style="left:122px" id="downloadBtn">
       <svg viewBox="0 0 36 36" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="30" height="30" rx="7"/><path d="M18 9v13M12 17l6 6 6-6M11 28h14"/></svg>Download
     </div>
+
     <div class="btn" style="left:397px" id="shareBtn">
       <svg viewBox="0 0 36 36" fill="none" stroke="#fff" stroke-width="3"><circle cx="9" cy="18" r="5"/><circle cx="26" cy="8" r="5"/><circle cx="26" cy="28" r="5"/><path d="M13 15l9-5M13 21l9 5"/></svg>Share
     </div>
+
     <div class="nav"><i class="menu"></i><i class="home"></i><i class="back"></i></div>
   </div>
+
   <script>
+    // Auto-populate default random Ref, Battery, and current PH Date & Time on load
     (function initDefaults() {
       const g = (n) => Array.from({ length: n }, () => Math.floor(Math.random() * 10)).join("");
       document.getElementById("refField").textContent = `${g(4)} ${g(3)} ${g(6)}`;
       document.getElementById("batteryVal").textContent = Math.floor(Math.random() * (99 - 75 + 1)) + 75;
+
       const now = new Date();
-      const dateStr = new Intl.DateTimeFormat("en-PH", { month: "short", day: "2-digit", year: "numeric", timeZone: "Asia/Manila" }).format(now);
-      const timeStr = new Intl.DateTimeFormat("en-PH", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "Asia/Manila" }).format(now).replace(/\u202f/g, " ");
+      const dateStr = new Intl.DateTimeFormat("en-PH", {
+        month: "short", day: "2-digit", year: "numeric", timeZone: "Asia/Manila"
+      }).format(now);
+      const timeStr = new Intl.DateTimeFormat("en-PH", {
+        hour: "numeric", minute: "2-digit", hour12: true, timeZone: "Asia/Manila"
+      }).format(now).replace(/\u202f/g, " ");
+
       document.getElementById("statusTime").textContent = timeStr;
       document.getElementById("dateField").textContent = `${dateStr} ${timeStr}`;
     })();
+
+    // Sync Amount and Total Amount Sent when edited
     const amountField = document.getElementById("amountField");
     const totalField = document.getElementById("totalField");
-    amountField.addEventListener("input", () => { totalField.textContent = amountField.textContent; });
-    totalField.addEventListener("input", () => { amountField.textContent = totalField.textContent; });
+
+    amountField.addEventListener("input", () => {
+      totalField.textContent = amountField.textContent;
+    });
+    totalField.addEventListener("input", () => {
+      amountField.textContent = totalField.textContent;
+    });
+
     async function renderPhone() {
+      // Remove active cursor/focus highlight before capturing
       if (document.activeElement) document.activeElement.blur();
-      return await html2canvas(document.getElementById("phone"), { scale: 2, useCORS: true, backgroundColor: "#0057e0", logging: false });
+      return await html2canvas(document.getElementById("phone"), {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#0057e0",
+        logging: false
+      });
     }
+
     document.getElementById("downloadBtn").addEventListener("click", async function () {
       const canvas = await renderPhone();
       const link = document.createElement("a");
@@ -143,6 +190,7 @@
       link.href = canvas.toDataURL("image/png");
       link.click();
     });
+
     document.getElementById("shareBtn").addEventListener("click", async function () {
       const canvas = await renderPhone();
       canvas.toBlob(async function (blob) {
